@@ -5,7 +5,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { SetSshDto } from './dto/set-ssh.dto';
 import { AccessToken } from './interfaces/accessToken';
 import { UsersService } from './users.service';
-import { User } from '@prisma/client';
+import { PublicUser } from './types/public-user.type';
 
 @Controller('users')
 export class UsersController {
@@ -17,14 +17,14 @@ export class UsersController {
     // GET /users/:username
     // This action returns a #${id} user
     @Get(':username')
-    async findOne(@Param('username') username: string): Promise<User> {
+    async findOne(@Param('username') username: string): Promise<PublicUser> {
         return await this.usersService.findOne({username});
     }
 
     // POST /users
     // This action adds a new user
     @Post()
-    async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    async create(@Body() createUserDto: CreateUserDto): Promise<PublicUser> {
         return await this.usersService.create(createUserDto);
     }
 
@@ -44,7 +44,7 @@ export class UsersController {
     // DELETE /users/:username
     // This action deletes a #${id} user
     @Delete(':username')
-    delete(@Param('username') username: string) {
+    delete(@Param('username') username: string): string {
         this.usersService.delete({username});
         return `OK`;
     }
@@ -53,6 +53,7 @@ export class UsersController {
     // This action adds a key ${setSshDto} to a user's keys
     @Patch(':username/ssh')
     async setSshKey(@Body() setSshDto: SetSshDto) {
+        // TODO: implement correctly
         return this.usersService.setSshKey(setSshDto);
     }
 }
