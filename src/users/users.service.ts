@@ -1,31 +1,45 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SetSshDto } from './dto/set-ssh.dto';
-import { User } from './interfaces/user';
+import { PrismaService } from 'src/prisma.service';
+import { User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  create(user: CreateUserDto): User {
-    const newUser: User = {
-        username: user.username,
-        email: user.email,
-        projectCount: 0
-    }
-    this.users.push(newUser);
-    return newUser;
+  private passwd_encrypt(password: string) {
+    // FIXME: implement encrypting passwords
+    return password;
   }
 
-  findOne(uuid: string): User {
-    return this.users[uuid];
+  async create(user: CreateUserDto): Promise<User> {
+    const timestamp: Date = new Date();
+
+    const data: Prisma.UserCreateInput = {
+      username: user.username,
+      email: user.email,
+      password: this.passwd_encrypt(user.password),
+      isAdmin: false,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+    
+    return await this.prisma.user.create({data});
   }
 
-  delete(uuid: string) {
-    this.users.splice(Number(uuid), 1);
+  async findOne(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User|null> {
+    return await this.prisma.user.findUnique({
+      where: userUniqueInput
+    });
+  }
+
+  async delete(where: Prisma.UserWhereUniqueInput) {
+    return await this.prisma.user.delete({where});
   }
 
   setSshKey(sshKey: SetSshDto): string {
+    // TODO: implement the public key handling
     return sshKey.publicKey;
   }
 }
