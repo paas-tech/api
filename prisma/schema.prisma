@@ -12,11 +12,11 @@ datasource db {
 
 model User {
   id          Int       @id @default(autoincrement())
-  username    String    @unique
-  email       String    @unique
-  password    String
+  username    String    @unique @db.VarChar(40)
+  email       String    @unique @db.VarChar(100)
+  password    String    @db.VarChar(255)
   isAdmin     Boolean
-  email_nonce String?
+  email_nonce String?   @db.VarChar(255)
   createdAt   DateTime
   updatedAt   DateTime
   projects    Project[]
@@ -24,8 +24,8 @@ model User {
 
 model Project {
   id        Int      @id @default(autoincrement())
-  uuid      String   @unique
-  name      String
+  uuid      String   @unique @db.Char(32)
+  name      String   @db.VarChar(40)
   createdAt DateTime
   updatedAt DateTime
   user      User     @relation(fields: [userId], references: [id])
