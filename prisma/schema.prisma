@@ -20,14 +20,35 @@ model User {
   createdAt   DateTime
   updatedAt   DateTime
   projects    Project[]
+  ssh_keys    SshKey[]
 }
 
-model Project {
+model SshKey {
   id        Int      @id @default(autoincrement())
-  uuid      String   @unique @db.Char(32)
-  name      String   @db.VarChar(40)
+  value     String
   createdAt DateTime
   updatedAt DateTime
   user      User     @relation(fields: [userId], references: [id])
   userId    Int      @unique
+}
+
+model Project {
+  id          Int          @id @default(autoincrement())
+  uuid        String       @unique @db.Char(32)
+  name        String       @db.VarChar(40)
+  createdAt   DateTime
+  updatedAt   DateTime
+  user        User         @relation(fields: [userId], references: [id])
+  userId      Int          @unique
+  deployments Deployment[]
+}
+
+model Deployment {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique
+  config    Json
+  createdAt DateTime
+  updatedAt DateTime
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId Int      @unique
 }
