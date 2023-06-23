@@ -5,7 +5,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { SetSshDto } from './dto/set-ssh.dto';
 import { AccessToken } from './interfaces/accessToken';
 import { UsersService } from './users.service';
-import { PublicUser } from './types/public-user.type';
+import { SanitizedUser } from './types/sanitized-user.type';
 
 @Controller('users')
 export class UsersController {
@@ -17,14 +17,14 @@ export class UsersController {
     // GET /users/:username
     // This action returns a #${id} user
     @Get(':username')
-    async findOne(@Param('username') username: string): Promise<PublicUser> {
+    async findOne(@Param('username') username: string): Promise<SanitizedUser> {
         return await this.usersService.findOne({username});
     }
 
     // POST /users
     // This action adds a new user
     @Post()
-    async create(@Body() createUserDto: CreateUserDto): Promise<PublicUser> {
+    async create(@Body() createUserDto: CreateUserDto): Promise<SanitizedUser> {
         return await this.usersService.create(createUserDto);
     }
 

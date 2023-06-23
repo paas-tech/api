@@ -1,23 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Project, User } from '@prisma/client';
+import { Project, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { exclude } from 'src/utils/prisma-exclude';
 
 @Injectable()
 export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
-  private exclude<Project, Key extends keyof Project>(project: Project, keys: Key[]): Omit<Project, Key> {
-    return Object.fromEntries(
-      Object.entries(project).filter(([key]) => !keys.includes(key as Key))
-    ) as Omit<Project, Key>;
-  }
+
 
   async create(user: User, project: CreateProjectDto): Promise<Project> {
     const timestamp: Date = new Date();
 
-    return this.prisma.project.create({
+    return await this.prisma.project.create({
       data: {
         name: project.name,
         uuid: uuidv4(),
@@ -35,7 +32,7 @@ export class ProjectsService {
     });
 
     if (project) {
-      return this.exclude(project, ['id', 'userId']);
+      return exclude(project, ['id', 'userId']);
     } else {
       return null;
     }

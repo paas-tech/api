@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
-import { PublicProject } from './types/public-project.type';
+import { SanitizedProject } from './types/sanitized-project.type';
 
 @Controller('projects')
 export class ProjectsController {
@@ -19,7 +19,7 @@ export class ProjectsController {
     // GET /projects/:uuid
     // This action returns a #${id} project;
     @Get(':uuid')
-    async findOne(@Param('uuid') id: string): Promise<PublicProject> {
+    async findOne(@Param('uuid') id: string): Promise<SanitizedProject> {
         return this.projectsService.findOne(id);
     }
 
