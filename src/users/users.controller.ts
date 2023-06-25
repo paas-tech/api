@@ -4,8 +4,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SetSshDto } from './dto/set-ssh.dto';
 import { AccessToken } from './interfaces/accessToken';
-import { User } from './interfaces/user';
 import { UsersService } from './users.service';
+import { SanitizedUser } from './types/sanitized-user.type';
 
 @Controller('users')
 export class UsersController {
@@ -14,18 +14,18 @@ export class UsersController {
         private authService: AuthService
     ) {}
 
-    // GET /users/:uuid
+    // GET /users/:username
     // This action returns a #${id} user
-    @Get(':uuid')
-    async findOne(@Param('uuid') id: string): Promise<User> {
-        return this.usersService.findOne(id);
+    @Get(':username')
+    async findOne(@Param('username') username: string): Promise<SanitizedUser> {
+        return await this.usersService.findOne({username});
     }
 
     // POST /users
     // This action adds a new user
     @Post()
-    async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-        return this.usersService.create(createUserDto);
+    async create(@Body() createUserDto: CreateUserDto): Promise<SanitizedUser> {
+        return await this.usersService.create(createUserDto);
     }
 
     // POST /users/login
@@ -41,18 +41,19 @@ export class UsersController {
         return "User is logged out";
     }
 
-    // DELETE /users/:uuid
+    // DELETE /users/:username
     // This action deletes a #${id} user
-    @Delete(':uuid')
-    delete(@Param('uuid') id: string) {
-        this.usersService.delete(id);
-        return `User #${id} deleted`;
+    @Delete(':username')
+    delete(@Param('username') username: string): string {
+        this.usersService.delete({username});
+        return `OK`;
     }
 
-    // PATCH /users/:uuid/ssh
+    // PATCH /users/:username/ssh
     // This action adds a key ${setSshDto} to a user's keys
-    @Patch(':uuid/ssh')
+    @Patch(':username/ssh')
     async setSshKey(@Body() setSshDto: SetSshDto) {
+        // TODO: implement correctly
         return this.usersService.setSshKey(setSshDto);
     }
 }

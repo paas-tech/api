@@ -398,3 +398,8 @@ Temporary Items
 dist
 .webpack
 .serverless/**/*.zip
+
+
+# mounted volume for postgres container
+# dev mode only
+.db_data

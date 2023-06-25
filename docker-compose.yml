@@ -1,0 +1,39 @@
+
+# ----------------------------
+# WARNING: DEV MODE ONLY
+# This Docker Compose file is not made for production
+# Please use the appropriate Dockerfile at the project root for production use
+# For more information, refer to the documentation or README of the project
+# ----------------------------
+
+networks:
+  internal:
+    name: paastech-api-network
+
+services:
+  node:
+    image: node:18.16.1-alpine3.18
+    container_name: paastech-api-node
+    working_dir: /opt
+    command: npm run start
+    networks:
+      - internal
+    ports:
+      - 80:3000
+    volumes:
+      # read-write is necessary for build and use
+      - ./:/opt:rw
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15.3-alpine3.18
+    container_name: paastech-api-db
+    networks:
+      - internal
+    volumes:
+      - ./.db_data:/var/lib/postgresql/data:rw
+    environment:
+      POSTGRES_DB: paastech
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api

@@ -1,23 +1,25 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
-import { NewProject } from './interfaces/new-project';
-import { Project } from './interfaces/project';
 import { ProjectsService } from './projects.service';
+import { SanitizedProject } from './types/sanitized-project.type';
 
 @Controller('projects')
 export class ProjectsController {
     constructor(private projectsService: ProjectsService) {}
+
     // GET /projects
     // This action returns all of the authenticated user's projects
     @Get()
-    async findAll(): Promise<Project[]> {
-        return this.projectsService.findAll();
+    @HttpCode(501)
+    async findAll() {
+        // TODO: implement and remove the 501 decorator above
+        return '501 Not Implemented';
     }
 
     // GET /projects/:uuid
     // This action returns a #${id} project;
     @Get(':uuid')
-    async findOne(@Param('uuid') id: string): Promise<Project> {
+    async findOne(@Param('uuid') id: string): Promise<SanitizedProject> {
         return this.projectsService.findOne(id);
     }
 
@@ -28,15 +30,17 @@ export class ProjectsController {
         with the project's id and name
     */
     @Post()
-    async create(@Body() createProjectDto: CreateProjectDto): Promise<NewProject> {
-        return this.projectsService.create(createProjectDto);
+    @HttpCode(501)
+    async create(@Body() createProjectDto: CreateProjectDto) {
+        // TODO: implement and remove the 501 decorator
+        return '501 Not Implemented';
     }
 
     // DELETE /projects/:uuid
     // This action deletes a #${id} project
     @Delete(':uuid')
-    async delete(@Param('uuid') id: string) {
-        this.projectsService.delete(id);
-        return `Project #${id} deleted`;
+    async delete(@Param('uuid') uuid: string) {
+        this.projectsService.delete(uuid);
+        return `OK`;
     }
 }
