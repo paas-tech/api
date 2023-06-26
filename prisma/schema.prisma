@@ -19,7 +19,7 @@ model User {
   isAdmin     Boolean   @map("is_admin")
   email_nonce String?   @db.VarChar(255)
   createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
   projects    Project[]
   ssh_keys    SshKey[]
 
@@ -27,12 +27,12 @@ model User {
 }
 
 model SshKey {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   value     String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int       @unique @map("user_id")
 
   @@map("ssh_keys")
 }
@@ -42,7 +42,7 @@ model Project {
   uuid        String       @unique @db.Uuid
   name        String       @db.VarChar(40)
   createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  updatedAt   DateTime?    @updatedAt @map("updated_at")
   user        User         @relation(fields: [userId], references: [id])
   userId      Int          @unique @map("user_id")
   deployments Deployment[]
@@ -55,10 +55,10 @@ model Deployment {
   uuid      String   @unique @db.Uuid
   name      String   @db.VarChar(40)
   config    Json
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId Int      @unique @map("project_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  project   Project   @relation(fields: [projectId], references: [id])
+  projectId Int       @unique @map("project_id")
 
   @@map("deployments")
 }
