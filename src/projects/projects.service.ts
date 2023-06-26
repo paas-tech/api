@@ -15,14 +15,10 @@ export class ProjectsService {
   }
 
   async create(user: User, project: CreateProjectDto): Promise<SanitizedProject> {
-    const timestamp: Date = new Date();
-
     return this.sanitizeOutput(await this.prisma.project.create({
       data: {
         name: project.name,
         uuid: uuidv4(),
-        createdAt: timestamp,
-        updatedAt: timestamp,
         userId: user.id,
       }
     }));
