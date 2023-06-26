@@ -16,10 +16,10 @@ services:
     container_name: paastech-api-node
     working_dir: /opt
     command: npm run start
-    networks:
-      - internal
-    ports:
-      - 80:3000
+    # network is in host mode for dev interoperability
+    # this allows for ORM commands to be run from the host machine
+    # as the env variables do not need to change from the host to the container
+    network_mode: host
     volumes:
       # read-write is necessary for build and use
       - ./:/opt:rw
@@ -33,11 +33,12 @@ services:
     networks:
       - internal
     ports:
+      # publishing the port for the other container to reach
       - 5432:5432
     volumes:
       - ./.db_data:/var/lib/postgresql/data:rw
     healthcheck:
-      test: /usr/local/bin/pg_isready -U api
+      test: /usr/local/bin/pg_isready -U api -d paastech
       interval: 5s
       timeout: 10s
       retries: 4
