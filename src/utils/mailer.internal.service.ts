@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 /**
@@ -11,17 +12,17 @@ export class _InternalMailerService {
 
 	private transporter: nodemailer.Transporter
 
-	constructor() {
+	constructor(configService: ConfigService) {
 		this.transporter = nodemailer.createTransport({
-			host: process.env.MAILER_HOST,
-			port: Number(process.env.MAILER_PORT),
-			secure: process.env.MAILER_SECURE === 'true',
+			host: configService.getOrThrow('MAILER_HOST'),
+			port: Number(configService.getOrThrow('MAILER_PORT')),
+			secure: configService.getOrThrow('MAILER_SECURE') === 'true',
 			auth: {
-				user: process.env.MAILER_USER,
-				pass: process.env.MAILER_PASSWORD,
+				user: configService.getOrThrow('MAILER_USER'),
+				pass: configService.getOrThrow('MAILER_PASSWORD'),
 			},
 		}, {
-			from: process.env.MAILER_FROM,
+			from: configService.getOrThrow('MAILER_FROM'),
 		});
 	}
 
