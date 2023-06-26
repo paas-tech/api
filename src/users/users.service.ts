@@ -20,16 +20,12 @@ export class UsersService {
   }
 
   async create(user: CreateUserDto): Promise<SanitizedUser> {
-    const timestamp: Date = new Date();
-    
     return this.sanitizeOutput(await this.prisma.user.create({
       data: {
         username: user.username,
         email: user.email,
         password: this.passwd_encrypt(user.password),
         isAdmin: false,
-        createdAt: timestamp,
-        updatedAt: timestamp,
       }
     }));
   }

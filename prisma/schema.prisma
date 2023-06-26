@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -16,40 +16,49 @@ model User {
   username    String    @unique @db.VarChar(40)
   email       String    @unique @db.VarChar(100)
   password    String    @db.VarChar(255)
-  isAdmin     Boolean
+  isAdmin     Boolean   @map("is_admin")
   email_nonce String?   @db.VarChar(255)
-  createdAt   DateTime
-  updatedAt   DateTime
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   projects    Project[]
   ssh_keys    SshKey[]
+
+  @@map("users")
 }
 
 model SshKey {
   id        Int      @id @default(autoincrement())
   value     String
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  userId    Int      @unique @map("user_id")
+
+  @@map("ssh_keys")
 }
 
 model Project {
   id          Int          @id @default(autoincrement())
   uuid        String       @unique @db.Char(32)
   name        String       @db.VarChar(40)
-  createdAt   DateTime
-  updatedAt   DateTime
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
   user        User         @relation(fields: [userId], references: [id])
-  userId      Int          @unique
+  userId      Int          @unique @map("user_id")
   deployments Deployment[]
+
+  @@map("projects")
 }
 
 model Deployment {
   id        Int      @id @default(autoincrement())
-  uuid      String   @unique
+  uuid      String   @unique @db.Char(32)
+  name      String   @db.VarChar(40)
   config    Json
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
   project   Project  @relation(fields: [projectId], references: [id])
-  projectId Int      @unique
+  projectId Int      @unique @map("project_id")
+
+  @@map("deployments")
 }

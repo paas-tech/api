@@ -24,7 +24,8 @@ services:
       # read-write is necessary for build and use
       - ./:/opt:rw
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:15.3-alpine3.18
@@ -33,6 +34,11 @@ services:
       - internal
     volumes:
       - ./.db_data:/var/lib/postgresql/data:rw
+    healthcheck:
+      test: /usr/local/bin/pg_isready -U api
+      interval: 5s
+      timeout: 10s
+      retries: 4
     environment:
       POSTGRES_DB: paastech
       POSTGRES_USER: api
