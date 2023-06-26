@@ -26,7 +26,7 @@ CREATE TABLE "ssh_keys" (
 -- CreateTable
 CREATE TABLE "projects" (
     "id" SERIAL NOT NULL,
-    "uuid" CHAR(32) NOT NULL,
+    "uuid" UUID NOT NULL,
     "name" VARCHAR(40) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE "projects" (
 -- CreateTable
 CREATE TABLE "deployments" (
     "id" SERIAL NOT NULL,
-    "uuid" CHAR(32) NOT NULL,
+    "uuid" UUID NOT NULL,
     "name" VARCHAR(40) NOT NULL,
     "config" JSONB NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

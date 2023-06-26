@@ -39,7 +39,7 @@ model SshKey {
 
 model Project {
   id          Int          @id @default(autoincrement())
-  uuid        String       @unique @db.Char(32)
+  uuid        String       @unique @db.Uuid
   name        String       @db.VarChar(40)
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
@@ -52,7 +52,7 @@ model Project {
 
 model Deployment {
   id        Int      @id @default(autoincrement())
-  uuid      String   @unique @db.Char(32)
+  uuid      String   @unique @db.Uuid
   name      String   @db.VarChar(40)
   config    Json
   createdAt DateTime @default(now()) @map("created_at")
