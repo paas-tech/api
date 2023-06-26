@@ -10,17 +10,33 @@ PaaSTech API's [Nest](https://github.com/nestjs/nest) framework TypeScript repos
 $ npm install
 ```
 
-## Running the app
+## Development
 
-```bash
-# development
-$ npm run start
+First, copy `.env.example` into your own `.env` file and replace all appropriate values.
 
-# watch mode
-$ npm run start:dev
+**WARNING**: There should be *no need* to replace the given default `DATABASE_URL`,
+which is already fully configured to use in development mode.
 
-# production mode
-$ npm run start:prod
+To run the application, you will need to use the Docker Compose in the root folder:
+
+```sh
+$ docker compose up -d
+```
+
+After this, you will need to run **once**:
+
+```sh
+# generates prisma's client for TS types and classes
+$ npx prisma generate
+
+# applies the migrations to the database
+$ npx prisma migrate deploy
+```
+
+If you need to generate migrations after editing the `schema.prisma` file, you can run:
+
+```sh
+$ npx prisma migrate dev --name "name of your migration here"
 ```
 
 ## Test
