@@ -14,8 +14,8 @@ $ npm install
 
 First, copy `.env.example` into your own `.env` file and replace all appropriate values.
 
-**WARNING**: There should be *no need* to replace the given default `DATABASE_URL`,
-which is already fully configured to use in development mode.
+**WARNING**: There should be *no need* to replace the given defaults,
+which are already fully configured to use in development mode.
 
 To run the application, you will need to use the Docker Compose in the root folder:
 
@@ -38,6 +38,8 @@ If you need to generate migrations after editing the `schema.prisma` file, you c
 ```sh
 $ npx prisma migrate dev --name "name of your migration here"
 ```
+
+Mailhog (the mail development server) is reachable through `localhost:8025` on the web once the docker compose has been upped.
 
 ## Test
 
