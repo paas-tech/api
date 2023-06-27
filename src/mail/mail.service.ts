@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { _InternalMailerService as MailerService } from './mailer.internal.service';
 import { compile } from 'handlebars';
+import { ConfigService } from '@nestjs/config';
 
 const EMAIL_CONFIRMATION_TEMPLATE = `<h2>Welcome to PaasTech!</h2>
 <p>Please click the link below to confirm your email:</p>
@@ -16,10 +17,18 @@ const EMAIL_CONFIRMATION_TEMPLATE = `<h2>Welcome to PaasTech!</h2>
 
 @Injectable()
 export class MailService {
-    constructor(private mailerService: MailerService) {}
+
+    private hostname: string;
+
+    constructor(
+        private readonly mailerService: MailerService,
+        private readonly configService: ConfigService,
+    ) {
+        this.hostname = `${this.configService.getOrThrow('APP_HOST')}:${this.configService.getOrThrow('APP_PORT')}`;
+    }
 
     async sendUserConfirmation(user: User, token: string) {
-        const url = `example.com/auth/confirm?token=${token}`;
+        const url = `${this.hostname}/auth/confirm?token=${token}`;
         const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
     
         await this.mailerService.sendMail({
