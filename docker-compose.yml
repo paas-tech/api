@@ -46,3 +46,14 @@ services:
       POSTGRES_DB: paastech
       POSTGRES_USER: api
       POSTGRES_PASSWORD: api
+
+  mail:
+    image: mailhog/mailhog:v1.0.1
+    container_name: paastech-api-mail
+    ports:
+      - 1025:1025
+      - 8025:8025
+    volumes:
+      - ./.docker/mailhog.auth:/etc/mailhog.auth:ro
+    environment:
+      MH_AUTH_FILE: /etc/mailhog.auth
