@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { _InternalMailerService as MailerService } from 'src/utils/mailer.internal.service';
+import { _InternalMailerService as MailerService } from './mailer.internal.service';
 import { compile } from 'handlebars';
 
 const EMAIL_CONFIRMATION_TEMPLATE = `<h2>Welcome to PaasTech!</h2>
