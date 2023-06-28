@@ -1,52 +1,43 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { SetSshDto } from './dto/set-ssh.dto';
-import { AccessToken } from './interfaces/accessToken';
-import { UsersService } from './users.service';
 import { SanitizedUser } from './types/sanitized-user.type';
+import { Body, Controller, Delete, Get, Post, Param, Patch, Req, UnauthorizedException } from '@nestjs/common';
+import { SetSshDto } from './dto/set-ssh.dto';
+import { UsersService } from './users.service';
+import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
     constructor(
-        private usersService: UsersService,
-        private authService: AuthService
+        private usersService: UsersService
     ) {}
 
     // GET /users/:username
-    // This action returns a #${id} user
+    // This action returns a #${username} user
     @Get(':username')
-    async findOne(@Param('username') username: string): Promise<SanitizedUser> {
+    async findOne(@Param('username') username: string, @Req() req: Request): Promise<SanitizedUser> {
+        if (req['user']?.username !== username) {
+            throw new UnauthorizedException();
+        }
         return await this.usersService.findOne({username});
     }
 
     // POST /users
     // This action adds a new user
+    @Public()
     @Post()
     async create(@Body() createUserDto: CreateUserDto): Promise<SanitizedUser> {
         return await this.usersService.create(createUserDto);
     }
 
-    // POST /users/login
-    // This action returns an access token
-    @Post('login')
-    async login(@Body() loginUserDto: LoginUserDto): Promise<AccessToken> {
-        return this.authService.login(loginUserDto);
-    }
-
-    @Post('logout')
-    async logout() {
-        this.authService.logout();
-        return "User is logged out";
-    }
-
     // DELETE /users/:username
-    // This action deletes a #${id} user
+    // This action deletes a #${username} user
+    @AdminOnly()
     @Delete(':username')
     delete(@Param('username') username: string): string {
         this.usersService.delete({username});
         return `OK`;
+
     }
 
     // PATCH /users/:username/ssh

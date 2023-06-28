@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post } from '@nestjs/common';
+import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
@@ -9,6 +10,7 @@ export class ProjectsController {
 
     // GET /projects
     // This action returns all of the authenticated user's projects
+    @AdminOnly()
     @Get()
     @HttpCode(501)
     async findAll() {

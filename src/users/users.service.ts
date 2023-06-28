@@ -1,22 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { SetSshDto } from './dto/set-ssh.dto';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { SetSshDto } from 'src/users/dto/set-ssh.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  private passwd_encrypt(password: string) {
-    // FIXME: implement encrypting passwords
-    return password;
-  }
-
   private sanitizeOutput(user: User): SanitizedUser {
     return exclude(user, ['id', 'email_nonce', 'password', 'createdAt', 'updatedAt']);
+  }
+
+  private async passwd_encrypt(password: string): Promise<string> {
+    const saltOrRounds = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, saltOrRounds);
+    return hash;
   }
 
   async create(user: CreateUserDto): Promise<SanitizedUser> {
@@ -24,7 +26,7 @@ export class UsersService {
       data: {
         username: user.username,
         email: user.email,
-        password: this.passwd_encrypt(user.password),
+        password: await this.passwd_encrypt(user.password),
         isAdmin: false,
       }
     }));
