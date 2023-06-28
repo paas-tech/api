@@ -6,6 +6,7 @@ import { User, Prisma } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
 import * as bcrypt from 'bcrypt';
+import { EMAIL_REGEX, PASSWORD_REGEX, USERNAME_REGEX } from 'src/utils/constants';
 
 @Injectable()
 export class UsersService {
@@ -30,6 +31,37 @@ export class UsersService {
         isAdmin: false,
       }
     }));
+  }
+
+  async validateEmail(email: string): Promise<boolean> {
+    // Verify if email form is valid
+    const expression: RegExp = EMAIL_REGEX;
+    const isValidRegex: boolean = expression.test(email);
+
+    if (isValidRegex) {
+        // Check that email address doesn't already exist in the db
+        const user = await this.findOne({email});
+        return !user;
+    }
+    return false;
+  }
+
+  async validateUsername(username: string): Promise<boolean> {
+    // Verify if username form is valid
+    const expression: RegExp = USERNAME_REGEX;
+    const isValidRegex: boolean = expression.test(username);
+
+    if (isValidRegex) {
+        // Check that username doesn't already exist in the db
+        const user = await this.findOne({username});
+        return !user;
+    }
+    return false;
+  }
+
+  async validatePassword(password: string): Promise<boolean> {
+    const expression: RegExp = PASSWORD_REGEX;
+    return(expression.test(password));
   }
 
   async findOne(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<SanitizedUser|null> {

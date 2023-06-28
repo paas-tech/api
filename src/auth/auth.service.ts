@@ -20,12 +20,12 @@ export class AuthService {
     // send a validation email to this address
   }
 
+  // Sign user in by email and password
   async signIn(credentials: LoginUserDto): Promise<AccessToken> {
     const user = await this.prisma.user.findUnique({
       where: {email: credentials.email}
     });
     await this.usersService.findOne({email: credentials.email});
-    console.log(user);
     const passwordHash = user['password'];
     const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash || "");
     if(!isCorrectPassword || !passwordHash) {
