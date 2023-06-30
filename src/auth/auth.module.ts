@@ -11,7 +11,6 @@ import { AuthService } from './auth.service';
   providers: [AuthService, PrismaService],
   imports: [
     UsersModule,
-    ConfigModule.forRoot(),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,

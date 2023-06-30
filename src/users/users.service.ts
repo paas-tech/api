@@ -17,9 +17,7 @@ export class UsersService {
   }
 
   private async passwd_encrypt(password: string): Promise<string> {
-    const saltOrRounds = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, saltOrRounds);
-    return hash;
+    return await bcrypt.hash(password, 10);
   }
 
   async create(user: CreateUserDto): Promise<SanitizedUser> {

@@ -26,7 +26,7 @@ export class AuthController {
     // This action adds a new user
     @Public()
     @Post('register')
-    async create(@Body() createUserDto: CreateUserDto): Promise<SanitizedUser> {
+    async register(@Body() createUserDto: CreateUserDto): Promise<SanitizedUser> {
         if (!await this.usersService.validateEmail(createUserDto.email)) {
             throw new HttpException("Registration error - email is invalid or already used", HttpStatus.BAD_REQUEST);
         }

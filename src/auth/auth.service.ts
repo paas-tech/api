@@ -15,10 +15,6 @@ export class AuthService {
   ) {}
 
 
-  private async validateEmail(email: string) {
-    // TODO: check that such email address doesn't already exist in the db,
-    // send a validation email to this address
-  }
 
   // Sign user in by email and password
   async signIn(credentials: LoginUserDto): Promise<AccessToken> {
@@ -27,7 +23,7 @@ export class AuthService {
     });
     await this.usersService.findOne({email: credentials.email});
     const passwordHash = user['password'];
-    const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash || "");
+    const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash);
     if(!isCorrectPassword || !passwordHash) {
       throw new UnauthorizedException();
     }
