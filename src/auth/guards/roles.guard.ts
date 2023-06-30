@@ -12,7 +12,6 @@ export class RolesGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    console.log("required admin role: " + requiredAdminRole);
     if (!requiredAdminRole) {
       return true;
     }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { SetSshDto } from 'src/users/dto/set-ssh.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
@@ -28,7 +28,7 @@ export class UsersService {
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
-        isAdmin: false,
+        isAdmin: true,
       }
     }));
   }
