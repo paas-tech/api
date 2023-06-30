@@ -16,15 +16,11 @@ export class AuthService {
 
   async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
     if (!await this.usersService.validateEmail(createUserDto.email)) {
-        throw new HttpException("Registration error - email is invalid or already used", HttpStatus.BAD_REQUEST);
+        throw new HttpException("Registration error - this email is already used", HttpStatus.BAD_REQUEST);
     }
 
     if (!await this.usersService.validateUsername(createUserDto.username)) {
-        throw new HttpException("Registration error - username is invalid or already used", HttpStatus.BAD_REQUEST);
-    }
-
-    if (!await this.usersService.validatePassword(createUserDto.password)) {
-        throw new HttpException("Registration error - password is invalid", HttpStatus.BAD_REQUEST);
+        throw new HttpException("Registration error - this username is already used", HttpStatus.BAD_REQUEST);
     }
 
     return await this.usersService.create(createUserDto);
