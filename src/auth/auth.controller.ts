@@ -1,4 +1,4 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
 import { AccessToken } from 'src/auth/interfaces/accessToken';
@@ -19,7 +19,7 @@ export class AuthController {
     @Public()
     @Post('login')
     async login(@Body() loginUserDto: LoginUserDto): Promise<AccessToken> {
-        return this.authService.signIn(loginUserDto);
+        return this.authService.login(loginUserDto);
     }
 
     // POST /auth/register
@@ -27,18 +27,6 @@ export class AuthController {
     @Public()
     @Post('register')
     async register(@Body() createUserDto: CreateUserDto): Promise<SanitizedUser> {
-        if (!await this.usersService.validateEmail(createUserDto.email)) {
-            throw new HttpException("Registration error - email is invalid or already used", HttpStatus.BAD_REQUEST);
-        }
-
-        if (!await this.usersService.validateUsername(createUserDto.username)) {
-            throw new HttpException("Registration error - username is invalid or already used", HttpStatus.BAD_REQUEST);
-        }
-
-        if (!await this.usersService.validatePassword(createUserDto.password)) {
-            throw new HttpException("Registration error - password is invalid", HttpStatus.BAD_REQUEST);
-        }
-
-        return await this.usersService.create(createUserDto);
+        return await this.authService.register(createUserDto);
     }
 }

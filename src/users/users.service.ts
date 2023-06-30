@@ -26,7 +26,7 @@ export class UsersService {
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
-        isAdmin: true,
+        isAdmin: false,
       }
     }));
   }
@@ -72,6 +72,12 @@ export class UsersService {
     } else {
       return null;
     }
+  }
+
+  async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User|null> {
+    return await this.prisma.user.findUnique({
+      where: userUniqueInput
+    });
   }
 
   async delete(where: Prisma.UserWhereUniqueInput) {
