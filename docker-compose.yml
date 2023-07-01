@@ -1,4 +1,3 @@
-
 # ----------------------------
 # WARNING: DEV MODE ONLY
 # This Docker Compose file is not made for production
@@ -15,7 +14,7 @@ services:
     image: node:18.16.1-alpine3.18
     container_name: paastech-api-node
     working_dir: /opt
-    command: "npm run start:dev"
+    command: 'npm run start:dev'
     # network is in host mode for dev interoperability
     # this allows for ORM commands to be run from the host machine
     # as the env variables do not need to change from the host to the container

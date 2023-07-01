@@ -1,3 +1,3 @@
-import { Project } from "@prisma/client";
+import { Project } from '@prisma/client';
 
-export type SanitizedProject = Project | Omit<Project, keyof Project>;
+export type SanitizedProject = Partial<Project>;

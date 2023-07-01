@@ -1,3 +1,8 @@
 export interface AccessToken {
-    accessToken: string;
+  accessToken: string;
+}
+
+export interface UserLogin {
+  accessToken: string;
+  isAdmin: boolean;
 }
