@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
@@ -41,10 +42,10 @@ export class ProjectsController {
         with the project's id and name
     */
   @Post()
+  @UsePipes(new ValidationPipe())
   async createRepository(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     // Check if project name is not already used for this user
     const project = await this.projectsService.findOneByName(request.name, user.id);
-
     if (project) {
       throw new BadRequestException('Project already exists');
     }

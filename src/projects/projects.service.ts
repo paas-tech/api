@@ -2,7 +2,7 @@
 import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Project, User } from '@prisma/client';
 import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Project } from '@prisma/client';
+import { Project, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 import { exclude } from 'src/utils/prisma-exclude';
