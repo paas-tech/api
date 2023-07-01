@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { SetSshDto } from './dto/set-ssh.dto';
+import { SetSshDto } from 'src/users/dto/set-ssh.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  private passwd_encrypt(password: string) {
-    // FIXME: implement encrypting passwords
-    return password;
-  }
-
   private sanitizeOutput(user: User): SanitizedUser {
     return exclude(user, ['id', 'email_nonce', 'password', 'createdAt', 'updatedAt']);
+  }
+
+  private async passwd_encrypt(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
   }
 
   async create(user: CreateUserDto): Promise<SanitizedUser> {
@@ -24,10 +24,20 @@ export class UsersService {
       data: {
         username: user.username,
         email: user.email,
-        password: this.passwd_encrypt(user.password),
+        password: await this.passwd_encrypt(user.password),
         isAdmin: false,
       }
     }));
+  }
+
+  async validateEmail(email: string): Promise<boolean> {
+      // Check that email address doesn't already exist in the db
+      return !await this.findOne({email});
+  }
+
+  async validateUsername(username: string): Promise<boolean> {
+      // Check that username doesn't already exist
+      return !await this.findOne({username});
   }
 
   async findOne(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<SanitizedUser|null> {
@@ -40,6 +50,12 @@ export class UsersService {
     } else {
       return null;
     }
+  }
+
+  async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User|null> {
+    return await this.prisma.user.findUnique({
+      where: userUniqueInput
+    });
   }
 
   async delete(where: Prisma.UserWhereUniqueInput) {
