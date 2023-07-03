@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @db.Uuid
   username    String    @unique @db.VarChar(40)
   email       String    @unique @db.VarChar(100)
   password    String    @db.VarChar(255)
@@ -32,33 +32,31 @@ model SshKey {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   user      User      @relation(fields: [userId], references: [id])
-  userId    Int       @unique @map("user_id")
+  userId    String    @unique @map("user_id")
 
   @@map("ssh_keys")
 }
 
 model Project {
-  id          Int          @id @default(autoincrement())
-  uuid        String       @unique @db.Uuid
+  id          String       @id @db.Uuid
   name        String       @db.VarChar(40)
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime?    @updatedAt @map("updated_at")
   user        User         @relation(fields: [userId], references: [id])
-  userId      Int          @unique @map("user_id")
+  userId      String       @unique @map("user_id")
   deployments Deployment[]
 
   @@map("projects")
 }
 
 model Deployment {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @db.Uuid
-  name      String   @db.VarChar(40)
+  id        String    @id @db.Uuid
+  name      String    @db.VarChar(40)
   config    Json
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   project   Project   @relation(fields: [projectId], references: [id])
-  projectId Int       @unique @map("project_id")
+  projectId String    @unique @map("project_id")
 
   @@map("deployments")
 }
