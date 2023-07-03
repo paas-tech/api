@@ -40,7 +40,7 @@ export class AuthService {
   async login(credentials: LoginUserDto): Promise<AccessToken> {
     const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
     if (user.emailNonce !== null) {
-      throw new UnauthorizedException();
+      throw new HttpException('Email address not confirmed', HttpStatus.UNAUTHORIZED);
     }
     const passwordHash = user.password;
     const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash);
