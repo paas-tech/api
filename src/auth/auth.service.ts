@@ -74,7 +74,7 @@ export class AuthService {
   // verify email token
   async confirmEmail(token: string): Promise<Boolean> {
     let sanitizedUser = await this.usersService.findOne({emailNonce: token});
-    if (sanitizedUser == null) {
+    if (!sanitizedUser) {
       return false;
     }
     return this.usersService.validateEmailNonce(token);
