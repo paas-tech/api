@@ -38,8 +38,13 @@ export class AuthService {
 
   // Sign user in by email and password
   async login(credentials: LoginUserDto): Promise<AccessToken> {
-    const user = await this.validateUser(credentials);
-    if(!user) {
+    const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
+    if (user.emailNonce !== null) {
+      throw new UnauthorizedException();
+    }
+    const passwordHash = user.password;
+    const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash);
+    if (!isCorrectPassword || !passwordHash) {
       throw new UnauthorizedException();
     }
 
@@ -49,11 +54,7 @@ export class AuthService {
     }
 
     // Add a username in the JWT token
-    const payload = {
-      sub: user['id'],
-      username: user['username'],
-      isAdmin: user['isAdmin']
-    };
+    const payload = { username: user.username, isAdmin: user.isAdmin };
 
     return {accessToken: await this.jwtService.signAsync(payload)};
   }
@@ -78,6 +79,4 @@ export class AuthService {
     }
     return this.usersService.validateEmailNonce(token);
   }
-
-  
 }
