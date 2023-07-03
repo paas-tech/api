@@ -45,7 +45,7 @@ export class AuthService {
 =======
     const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
     if (user.email_nonce !== null) {
-      throw new UnauthorizedException();
+      throw new HttpException('Email address not confirmed', HttpStatus.UNAUTHORIZED);
     }
     const passwordHash = user.password;
     const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash);
