@@ -32,41 +32,32 @@ export class ProjectsService {
   }
 
   async findOne(uuid: string, userId: number): Promise<SanitizedProject | null> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirstOrThrow({
       where: { id: userId },
     });
-
     // if user is admin, we can check
     if (user.isAdmin) {
-      return (
-        (await this.prisma.project.findFirst({
-          where: { uuid },
-        })) ?? null
-      );
+      return await this.prisma.project.findFirstOrThrow({
+        where: { uuid },
+      });
     }
 
-    return (
-      (await this.prisma.project.findFirst({
-        where: { userId, uuid },
-      })) ?? null
-    );
+    return await this.prisma.project.findFirstOrThrow({
+      where: { userId, uuid },
+    });
   }
 
   async findOneByName(name: string, userId: number): Promise<SanitizedProject | null> {
-    const project = await this.prisma.project.findFirst({
+    return await this.prisma.project.findFirstOrThrow({
       where: { userId, name: name },
     });
-    return project ?? null;
   }
 
   async delete(uuid: string) {
     // Retrieve the project before deleting it
-    const project = await this.prisma.project.findFirst({
+    const project = await this.prisma.project.findFirstOrThrow({
       where: { uuid },
     });
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
 
     // Delete the project
     await this.prisma.project.delete({
@@ -78,7 +69,7 @@ export class ProjectsService {
 
   async findAll(userId: number): Promise<SanitizedProject[]> {
     // check if user is admin
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirstOrThrow({
       where: { id: userId },
     });
 
