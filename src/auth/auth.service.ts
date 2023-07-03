@@ -60,7 +60,7 @@ export class AuthService {
 
   async validateUser(credentials: LoginUserDto): Promise<SanitizedUser> {
     const user = await this.usersService.findOneUnsanitized({email: credentials.email});
-    if (user && await bcrypt.compare(credentials.password, user.password)) {
+    if (user && user.emailNonce && await bcrypt.compare(credentials.password, user.password)) {
       return {
         id: user.id,
         username: user.username,
