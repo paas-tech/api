@@ -41,7 +41,7 @@ export class MailService {
         const url = `${this.hostname}/auth/confirm?token=${token}`;
         const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
 
-        return await this.mailerService.sendMail({
+        return this.mailerService.sendMail({
             from: `${this.configService.getOrThrow('MAILER_FROM')}`,
             to: email,
             subject: 'Welcome to PaasTech!',

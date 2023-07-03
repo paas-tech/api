@@ -38,15 +38,20 @@ export class UsersService {
   }
 
   async validateEmailNonce(uuid: string): Promise<boolean> {
-    await this.prisma.user.update({
-      where: {
-        emailNonce: uuid,
-      },
-      data: {
-        emailNonce: null
-      }
-    })
-    return true;
+    try {
+      await this.prisma.user.update({
+        where: {
+          emailNonce: uuid,
+        },
+        data: {
+          emailNonce: null
+        }
+      })
+      return true;
+    } catch {
+      return false;
+    }
+
   }
 
 
