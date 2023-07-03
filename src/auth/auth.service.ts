@@ -39,36 +39,26 @@ export class AuthService {
 
   // Sign user in by email and password
   async login(credentials: LoginUserDto): Promise<AccessToken> {
-<<<<<<< HEAD
     const user = await this.validateUser(credentials);
     if(!user) {
-=======
-    const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
-    if (!user || user.email_nonce !== null) {
-      throw new HttpException('Email address not confirmed', HttpStatus.UNAUTHORIZED);
-    }
-    const passwordHash = user.password;
-    const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash);
-    if (!isCorrectPassword || !passwordHash) {
->>>>>>> dcf51a5 (feat: added email validation)
       throw new UnauthorizedException();
     }
 
+    const unsanitizedUser = await this.usersService.findOneUnsanitized({ email: credentials.email });
+    if (unsanitizedUser.emailNonce !== null) {
+      throw new HttpException('Email address not confirmed', HttpStatus.UNAUTHORIZED);
+    }
+
     // Add a username in the JWT token
-<<<<<<< HEAD
     const payload = {
       sub: user['id'],
       username: user['username'],
       isAdmin: user['isAdmin']
     };
-=======
-    const payload = { username: user.username, isAdmin: user.isAdmin };
->>>>>>> dcf51a5 (feat: added email validation)
 
-    return { accessToken: await this.jwtService.signAsync(payload) };
+    return {accessToken: await this.jwtService.signAsync(payload)};
   }
 
-<<<<<<< HEAD
   async validateUser(credentials: LoginUserDto): Promise<SanitizedUser> {
     const user = await this.usersService.findOneUnsanitized({email: credentials.email});
     if (user && await bcrypt.compare(credentials.password, user.password)) {
@@ -81,15 +71,12 @@ export class AuthService {
     return null;
   }
   
-}
-=======
   // verify email token
   async confirmEmail(token: string): Promise<Boolean> {
-    let sanitizedUser = await this.usersService.findOne({email_nonce: token});
+    let sanitizedUser = await this.usersService.findOne({emailNonce: token});
     if (sanitizedUser == null) {
       return false;
     }
     return this.usersService.validateEmailNonce(token);
   }
 }
->>>>>>> dcf51a5 (feat: added email validation)
