@@ -44,7 +44,7 @@ export class AuthService {
     if(!user) {
 =======
     const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
-    if (user.email_nonce !== null) {
+    if (!user || user.email_nonce !== null) {
       throw new HttpException('Email address not confirmed', HttpStatus.UNAUTHORIZED);
     }
     const passwordHash = user.password;
