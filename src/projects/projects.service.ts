@@ -85,7 +85,7 @@ export class ProjectsService {
     // If the user is admin we return every project in the database
     if (user.isAdmin) {
       const projects = await this.prisma.project.findMany();
-      return projects.map((project) => project);
+      return projects.map((project) => this.sanitizeOutput(project));
     }
 
     const projects = await this.prisma.project.findMany({
