@@ -26,7 +26,7 @@ export class UsersService {
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
-        isAdmin: false,
+        isAdmin: false
       }
     });
   }
