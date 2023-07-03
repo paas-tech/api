@@ -37,7 +37,7 @@ export class MailService {
         this.hostname = `${this.configService.getOrThrow('APP_HOST')}:${this.configService.getOrThrow('APP_PORT')}`;
     }
 
-    async sendUserConfirmation(email: string, token: string) {
+    async sendUserConfirmation(email: string, token: string): Promise<boolean> {
         const url = `${this.hostname}/auth/confirm?token=${token}`;
         const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
 
