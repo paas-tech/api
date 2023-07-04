@@ -59,6 +59,9 @@ CREATE UNIQUE INDEX "users_email_nonce_key" ON "users"("email_nonce");
 -- CreateIndex
 CREATE UNIQUE INDEX "users_password_nonce_key" ON "users"("password_nonce");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "email_nonce_key" ON "users"("email_nonce");
+
 -- AddForeignKey
 ALTER TABLE "ssh_keys" ADD CONSTRAINT "ssh_keys_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
