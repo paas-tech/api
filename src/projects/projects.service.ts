@@ -55,18 +55,14 @@ export class ProjectsService {
 
   async delete(uuid: string, userId: number): Promise<SanitizedProject> {
     // Retrieve the project before deleting it
-    const project = await this.prisma.project
-      .findFirstOrThrow({ where: { uuid } })
-      .catch(() => {
-        throw new NotFoundException(`Project with uuid ${uuid} not found`);
-      });
+    const project = await this.prisma.project.findFirstOrThrow({ where: { uuid } }).catch(() => {
+      throw new NotFoundException(`Project with uuid ${uuid} not found`);
+    });
 
     // Check if user exists
-    const user = await this.prisma.user
-      .findFirstOrThrow({ where: { id: userId } })
-      .catch(() => {
-        throw new NotFoundException(`User with id ${userId} not found`);
-      });
+    const user = await this.prisma.user.findFirstOrThrow({ where: { id: userId } }).catch(() => {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    });
 
     // if user is admin we can delete the project
     if (user?.isAdmin) {
