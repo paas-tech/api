@@ -13,7 +13,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   private sanitizeOutput(user: User): SanitizedUser {
-    return exclude(user, ['id', 'email_nonce', 'password', 'createdAt', 'updatedAt']);
+    return exclude(user, ['id', 'emailNonce', 'passwordNonce', 'password', 'createdAt', 'updatedAt']);
   }
 
   private async passwd_encrypt(password: string): Promise<string> {
@@ -23,7 +23,6 @@ export class UsersService {
   async create(user: CreateUserDto): Promise<SanitizedUser> {
     return this.sanitizeOutput(await this.prisma.user.create({
       data: {
-        id: uuidv4(),
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
