@@ -1,10 +1,8 @@
-<<<<<<< HEAD
+
 import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Project } from '@prisma/client';
-=======
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { Project, User } from '@prisma/client';
->>>>>>> 605d212 (feat(diablox9): modern warfare 2)
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Project } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 import { exclude } from 'src/utils/prisma-exclude';

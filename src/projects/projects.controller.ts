@@ -1,5 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
@@ -8,7 +7,7 @@ import { GetUser } from 'src/auth/decorators/user.decorator';
 import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
 import { PrismaService } from 'src/prisma.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { RepositoryRequest, RepositoryResponse } from 'paastech-proto/types/proto/git-repo-manager';
+import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { GitRepoManagerService } from './git-repo-manager.service';
@@ -42,10 +41,10 @@ export class ProjectsController {
         with the project's id and name
     */
   @Post()
-  @UsePipes(new ValidationPipe())
   async createRepository(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     // Check if project name is not already used for this user
     const project = await this.projectsService.findOneByName(request.name, user.id);
+
     if (project) {
       throw new BadRequestException('Project already exists');
     }
