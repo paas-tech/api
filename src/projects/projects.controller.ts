@@ -55,10 +55,9 @@ export class ProjectsController {
   // DELETE /projects/:uuid
   // This action deletes a #${id} project
   @Delete(':uuid')
-  @UseGuards(AuthGuard)
   async delete(@Query() request: DeleteRepositoryDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     // Delete the project from the database
-    const project = await this.projectsService.delete(request.uuid);
+    const project = await this.projectsService.delete(request.uuid, user.id);
 
     // Send the grpc request to delete the repository
     const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(request.uuid);
