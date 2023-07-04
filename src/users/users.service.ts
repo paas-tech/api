@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  public sanitizeOutput(user: User): SanitizedUser {
+  private sanitizeOutput(user: User): SanitizedUser {
     return exclude(user, ['id', 'emailNonce', 'passwordNonce', 'password', 'createdAt', 'updatedAt']);
   }
 
