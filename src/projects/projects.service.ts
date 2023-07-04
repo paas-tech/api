@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Project, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -53,18 +58,36 @@ export class ProjectsService {
     });
   }
 
-  async delete(uuid: string) {
+  async delete(uuid: string, userId: number): Promise<SanitizedProject> {
     // Retrieve the project before deleting it
-    const project = await this.prisma.project.findFirstOrThrow({
-      where: { uuid },
+    const project = await this.prisma.project
+      .findFirstOrThrow({ where: { uuid } })
+      .catch(() => {
+        throw new NotFoundException(`Project with uuid ${uuid} not found`);
+      });
+
+    // Check if user exists
+    const user = await this.prisma.user
+      .findFirstOrThrow({ where: { id: userId } })
+      .catch(() => {
+        throw new NotFoundException(`User with id ${userId} not found`);
+      });
+
+    // if user is admin we can delete the project
+    if (user?.isAdmin) {
+      await this.prisma.project.delete({ where: { uuid } });
+      return this.sanitizeOutput(project);
+    }
+
+    // if not authorized to delete the project (not owner of project)
+    if (userId !== project.userId) throw new UnauthorizedException();
+
+    // delete the project
+    await this.prisma.project.delete({ where: { uuid } }).catch(() => {
+      throw new InternalServerErrorException('Could not delete the project');
     });
 
-    // Delete the project
-    await this.prisma.project.delete({
-      where: { uuid },
-    });
-
-    return project;
+    return this.sanitizeOutput(project);
   }
 
   async findAll(userId: number): Promise<SanitizedProject[]> {
