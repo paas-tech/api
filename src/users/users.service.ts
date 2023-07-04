@@ -20,16 +20,15 @@ export class UsersService {
     return await bcrypt.hash(password, 10);
   }
 
-  async create(user: CreateUserDto, uuid: string): Promise<SanitizedUser> {
-    return this.sanitizeOutput(await this.prisma.user.create({
+  async create(user: CreateUserDto): Promise<User> {
+    return await this.prisma.user.create({
       data: {
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
         isAdmin: false,
-        emailNonce: uuid
       }
-    }));
+    });
   }
 
   async validateEmail(email: string): Promise<boolean> {

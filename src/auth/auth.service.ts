@@ -6,7 +6,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
-import { v4 as uuidv4 } from 'uuid';
 import { MailService } from 'src/mail/mail.service';
 
 
@@ -27,14 +26,14 @@ export class AuthService {
       throw new HttpException("Registration error - this username is already used", HttpStatus.BAD_REQUEST);
     }
 
-    // create email_nounce
-    let uuid = uuidv4();
-
-    if (!await this.mailService.sendUserConfirmation(createUserDto.email, uuid)) {
+    let user = await this.usersService.create(createUserDto);
+    
+    if (!await this.mailService.sendUserConfirmation(createUserDto.email, user.emailNonce)) {
       throw new HttpException("Email could not be sent", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    return await this.usersService.create(createUserDto, uuid);
+    return this.usersService.sanitizeOutput(user);
+
   }
 
   // Sign user in by email and password
