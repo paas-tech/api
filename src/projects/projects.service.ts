@@ -31,26 +31,45 @@ export class ProjectsService {
     };
   }
 
-  async findOne(uuid: string, userId: number): Promise<SanitizedProject | null> {
+  async findOne(uuid: string, userId: number): Promise<SanitizedProject> {
     const user = await this.prisma.user.findFirstOrThrow({
       where: { id: userId },
     });
     // if user is admin, we can check
     if (user.isAdmin) {
-      return await this.prisma.project.findFirstOrThrow({
+      const project = await this.prisma.project.findFirstOrThrow({
         where: { uuid },
       });
+      return project;
     }
 
-    return await this.prisma.project.findFirstOrThrow({
-      where: { userId, uuid },
-    });
+    const project = await this.prisma.project
+      .findFirstOrThrow({
+        where: { userId, uuid },
+      })
+      .catch(() => {
+        throw new NotFoundException(`Project with uuid ${uuid} not found`);
+      });
+    return project;
   }
 
-  async findOneByName(name: string, userId: number): Promise<SanitizedProject | null> {
-    return await this.prisma.project.findFirstOrThrow({
+  async findOneByName(name: string, userId: number): Promise<SanitizedProject> {
+    const user = await this.prisma.user.findFirstOrThrow({
+      where: { id: userId },
+    });
+    // if user is admin, we can check
+    if (user.isAdmin) {
+      const project = await this.prisma.project.findFirstOrThrow({
+        where: { name: name },
+      });
+      return project;
+    }
+
+    const project = await this.prisma.project.findFirst({
       where: { userId, name: name },
     });
+
+    return project;
   }
 
   async delete(uuid: string, userId: number): Promise<SanitizedProject> {
