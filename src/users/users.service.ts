@@ -6,6 +6,7 @@ import { User, Prisma } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +23,7 @@ export class UsersService {
   async create(user: CreateUserDto): Promise<SanitizedUser> {
     return this.sanitizeOutput(await this.prisma.user.create({
       data: {
+        id: uuidv4(),
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
