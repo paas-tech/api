@@ -6,13 +6,14 @@ import { User, Prisma } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   private sanitizeOutput(user: User): SanitizedUser {
-    return exclude(user, ['id', 'email_nonce', 'password', 'createdAt', 'updatedAt']);
+    return exclude(user, ['id', 'emailNonce', 'passwordNonce', 'password', 'createdAt', 'updatedAt']);
   }
 
   private async passwd_encrypt(password: string): Promise<string> {
