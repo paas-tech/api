@@ -1,12 +1,12 @@
 -- CreateTable
 CREATE TABLE "users" (
-    "id" UUID NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "username" VARCHAR(40) NOT NULL,
     "email" VARCHAR(100) NOT NULL,
     "password" VARCHAR(255) NOT NULL,
     "is_admin" BOOLEAN NOT NULL,
-    "email_nonce" VARCHAR(255),
-    "password_nonce" VARCHAR(255),
+    "email_nonce" UUID DEFAULT gen_random_uuid(),
+    "password_nonce" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
 
@@ -26,7 +26,7 @@ CREATE TABLE "ssh_keys" (
 
 -- CreateTable
 CREATE TABLE "projects" (
-    "id" UUID NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(40) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
@@ -37,7 +37,7 @@ CREATE TABLE "projects" (
 
 -- CreateTable
 CREATE TABLE "deployments" (
-    "id" UUID NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(40) NOT NULL,
     "config" JSONB NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,6 +52,12 @@ CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_nonce_key" ON "users"("email_nonce");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_password_nonce_key" ON "users"("password_nonce");
 
 -- AddForeignKey
 ALTER TABLE "ssh_keys" ADD CONSTRAINT "ssh_keys_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
