@@ -3,7 +3,6 @@ import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req, Unautho
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -16,10 +15,7 @@ export class UsersController {
     // GET /users/:username
     // This action returns a #${username} user
     @Get(':username')
-    async findOne(@Param('username') username: string, @Req() req: Request): Promise<SanitizedUser> {
-        if ((req['user'] as unknown as {username:string|null})?.username !== username) {
-            throw new UnauthorizedException();
-        }
+    async findOne(@Param('username') username: string): Promise<SanitizedUser> {
         return await this.usersService.findOne({ username });
     }
 
