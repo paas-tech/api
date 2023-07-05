@@ -8,22 +8,24 @@ export class SshController {
         private sshService: SshService
     ) {}
 
-    // PATCH /users/:username/ssh
+    // PATCH /ssh/:username
     // This action adds a key ${setSshDto} to a user's keys
     @Post(':username')
     async setSshKey(@Body() setSshDto: SetSshDto, @Req() req: Request) {
         try {
-            return await this.sshService.setSshKey(setSshDto, req['user']?.username);
+            if (!this.sshService.setSshKey(setSshDto, req['user']?.username)) {
+                throw new HttpException("SSH key could not be created.", HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+            return "SSH key was successfully created."
         } catch(err) {
             throw new HttpException("SSH key could not be added to this account.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // DELETE /users/:username/ssh
+    // DELETE /ssh/:username
     // This action removes a key ${setSshDto} to a user's keys
     @Delete(':username')
     async deleteSshKey(@Body() setSshDto: SetSshDto, @Req() req: Request) {
-        // TODO: implement correctly
         try {
             if(!await this.sshService.removeSshKey(setSshDto, req['user']?.username)) {
                 throw new HttpException("User or key not found.", HttpStatus.INTERNAL_SERVER_ERROR)
@@ -35,7 +37,7 @@ export class SshController {
     }
 
 
-    // GET /users/:username/ssh
+    // GET /ssh/:username
     // This action gets all the ssh keys of the user
     @Get(':username')
     async getSshKeys(@Req() req: Request) {
