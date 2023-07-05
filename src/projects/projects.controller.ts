@@ -25,7 +25,7 @@ import { PrismaService } from 'src/prisma.service';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private projectsService: ProjectsService, private gitRepoManagerService: GitRepoManagerService, private prisma: PrismaService) {}
+  constructor(private projectsService: ProjectsService, private prisma: PrismaService) {}
 
   // GET /projects
   // This action returns all of the authenticated user's projects
@@ -51,18 +51,7 @@ export class ProjectsController {
   @UsePipes(new ValidationPipe())
   async create(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     const createdProject = await this.projectsService.create(user.id, request.name);
-    // Create the project's repository
-    const projectPath = `${createdProject.id}`;
-    const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(projectPath);
-
     // Send the gRPC request to create the repository
-    try {
-      await this.gitRepoManagerService.create(repositoryRequest);
-    } catch (e) {
-      // If the repository creation fails, delete the project from the database
-      await this.projectsService.delete(createdProject.id, user.id);
-      throw new InternalServerErrorException(`Failed to create repository for project ${createdProject.id}`);
-    }
 
     return createdProject;
   }
@@ -71,21 +60,10 @@ export class ProjectsController {
   // This action deletes a #${id} project
   @Delete(':uuid')
   @UseGuards(AuthGuard)
-  async delete(@Query() request: DeleteRepositoryDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
+  async delete(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     // Delete the project from the database
-    const project = await this.projectsService.delete(request.uuid, user.id);
-
-    // Send the grpc request to delete the repository
-    const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(request.uuid);
-    this.gitRepoManagerService.delete(repositoryRequest);
+    const project = await this.projectsService.delete(uuid, user.id);
 
     return project;
-  }
-
-  // Helper to create a RepositoryRequest object
-  createRepositoryRequest(path: string): RepositoryRequest {
-    return {
-      repository_path: path,
-    };
   }
 }
