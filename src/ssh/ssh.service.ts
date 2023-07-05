@@ -5,7 +5,7 @@ import { Prisma, SshKey } from '@prisma/client';
 import { exclude } from 'src/utils/prisma-exclude';
 import { SanitizedSshKey } from './types/sanitized-ssh-key';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
-import { UsersService } from '../users.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class SshService {
