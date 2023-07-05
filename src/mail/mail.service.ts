@@ -38,13 +38,13 @@ export class MailService {
     }
 
     async sendUserConfirmation(email: string, token: string): Promise<boolean> {
-        const url = `${this.hostname}/auth/confirm?token=${token}`;
+        const url = `${this.hostname}/email-verification/${token}`;
         const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
 
         return this.mailerService.sendMail({
             from: `${this.configService.getOrThrow('MAILER_FROM')}`,
             to: email,
-            subject: 'Welcome to PaasTech!',
+            subject: 'Welcome to PaaSTech!',
             html: template({ url }),
 
             // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
@@ -61,12 +61,13 @@ export class MailService {
     }
 
     async sendPasswordReset(email: string, token: string) {
-        const url = `${this.hostname}/auth/pwreset?token=${token}`;
+        const url = `${this.hostname}/password-reset/${token}`;
         const template = compile(PASSWORD_RESET_TEMPLATE);
 
         await this.mailerService.sendMail({
+            from: `${this.configService.getOrThrow('MAILER_FROM')}`,
             to: email,
-            subject: 'Password reset PaasTech !',
+            subject: '[PaaSTech] Password reset',
             html: template({ url }),
 
             // TODO: use @nestjs-modules/mailer once bumped to 10.0.0

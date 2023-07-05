@@ -28,10 +28,10 @@ export class AuthController {
         return await this.authService.register(createUserDto);
     }
 
-    // GET /auth/pwreset/:token
+    // GET /auth/confirm/:token
     // This path lets the user confirm his email
     @Public()
-    @Get('/confirm')
+    @Get('confirm')
     async confirmEmail(@Query('token') token: string): Promise<string> {
         if (!await this.authService.confirmEmail(token)) {
             throw new HttpException("No user with these specifications has been found.", HttpStatus.BAD_REQUEST)
