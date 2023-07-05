@@ -6,4 +6,7 @@ export class CreateSshKeyDto {
 
     @IsNotEmpty()
     userId: string;
+
+    @IsNotEmpty()
+    name: string;
 }

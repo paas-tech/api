@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import { SetSshDto } from './dto/set-ssh.dto';
 import { SshService } from './ssh.service';
 
@@ -13,7 +13,7 @@ export class SshController {
     @Post(':username')
     async setSshKey(@Body() setSshDto: SetSshDto, @Req() req: Request) {
         try {
-            if (!this.sshService.setSshKey(setSshDto, req['user']?.username)) {
+            if (!await this.sshService.setSshKey(setSshDto, req['user']?.username)) {
                 throw new HttpException("SSH key could not be created.", HttpStatus.INTERNAL_SERVER_ERROR)
             }
             return "SSH key was successfully created."
@@ -24,10 +24,10 @@ export class SshController {
 
     // DELETE /ssh/:username
     // This action removes a key ${setSshDto} to a user's keys
-    @Delete(':username')
-    async deleteSshKey(@Body() setSshDto: SetSshDto, @Req() req: Request) {
+    @Delete(':username/:name')
+    async deleteSshKey(@Query() name: string, @Req() req: Request) {
         try {
-            if(!await this.sshService.removeSshKey(setSshDto, req['user']?.username)) {
+            if(!await this.sshService.removeSshKey(name, req['user']?.username)) {
                 throw new HttpException("User or key not found.", HttpStatus.INTERNAL_SERVER_ERROR)
             }
         } catch(err) {

@@ -29,12 +29,12 @@ model User {
 
 model SshKey {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String    
   value     String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   user      User      @relation(fields: [userId], references: [id])
   userId    String    @map("user_id") @db.Uuid
-
   @@map("ssh_keys")
 }
 

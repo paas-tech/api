@@ -15,13 +15,14 @@ export class SshService {
 
 
   private sanitizeOutput(sshKey: SshKey): SanitizedSshKey {
-    return exclude(sshKey, ['id', 'userId', 'createdAt', 'updatedAt']);
+    return exclude(sshKey, ['id', 'value', 'userId', 'createdAt', 'updatedAt']);
   }
 
   async create(sshKey: CreateSshKeyDto): Promise<SanitizedSshKey> {
     return this.sanitizeOutput(await this.prisma.sshKey.create({
       data: {
         value: sshKey.value,
+        name: sshKey.name,
         userId: sshKey.userId
       }
     }));
@@ -49,11 +50,32 @@ export class SshService {
     return await this.prisma.sshKey.delete({where});
   }
 
+  async checkSshKey(createSshKeyDto: CreateSshKeyDto): Promise<boolean> {
+    let ssh = await this.prisma.sshKey.findFirst({where: {value: createSshKeyDto.value}});
+    if (ssh) {
+      return false;
+    }
+    ssh = await this.prisma.sshKey.findFirst({
+      where: {
+        name: createSshKeyDto.name, 
+        userId: createSshKeyDto.userId
+      }})
+    console.log(ssh)
+    if (ssh) {
+      return false;
+    }
+    return true;
+  }
+
   async setSshKey(sshKey: SetSshDto, username: string): Promise<boolean> {
     let user = await this.usersService.findOneUnsanitized({username});
     let createSshKeyDto: CreateSshKeyDto = {
         value: sshKey.publicKey,
-        userId: user.id
+        userId: user.id,
+        name: sshKey.name
+    }
+    if (!await this.checkSshKey(createSshKeyDto)) {
+      return false;
     }
     if (!await this.create(createSshKeyDto)) {
         return false;
@@ -62,7 +84,7 @@ export class SshService {
   }
 
 
-  async removeSshKey(sshKey: SetSshDto, username: string): Promise<boolean> {
+  async removeSshKey(name: string, username: string): Promise<boolean> {
     try {
         let user = await this.usersService.findOneUnsanitized({username});
         if (!user) {
@@ -70,7 +92,7 @@ export class SshService {
         }
         let count = await this.prisma.sshKey.deleteMany({
             where: {
-                value: sshKey.publicKey,
+                name: name,
                 userId: user.id
             }
         })
