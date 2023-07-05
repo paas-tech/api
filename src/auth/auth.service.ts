@@ -24,21 +24,16 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
-    if (!await this.usersService.validateEmail(createUserDto.email)) {
-      throw new HttpException("Registration error - this email is already used", HttpStatus.BAD_REQUEST);
+    try {
+      return await this.usersService.create(createUserDto);
     }
-
-    if (!await this.usersService.validateUsername(createUserDto.username)) {
-      throw new HttpException("Registration error - this username is already used", HttpStatus.BAD_REQUEST);
+    catch (err) {
+      if (err.code === 'P2002' && err.meta?.target?.length > 0) {
+        throw new HttpException(`Registration error - this ${err.meta.target[0]} is already used`, HttpStatus.BAD_REQUEST);
+      }
+      console.log(err);
+      throw new HttpException("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR, { cause: err });
     }
-
-    let user = await this.usersService.create(createUserDto);
-    
-    if (!await this.mailService.sendUserConfirmation(user.email, user.emailNonce)) {
-      throw new HttpException("Email could not be sent", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    return this.usersService.sanitizeOutput(user);
   }
 
   // Sign user in by email and password
