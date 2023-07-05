@@ -11,6 +11,7 @@
         "outDir": "dist/src"
       }
     ],
+    "plugins": ["@nestjs/swagger"],
     "watchAssets": true
   }
 }

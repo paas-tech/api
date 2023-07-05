@@ -15,14 +15,14 @@ import {
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
-import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { GetUser } from 'src/auth/decorators/user.decorator';
-import { GitRepoManagerService } from './git-repo-manager.service';
 import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
-import { DeleteRepositoryDto } from './dto/delete-repository.dto';
 import { PrismaService } from 'src/prisma.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
   constructor(private projectsService: ProjectsService, private prisma: PrismaService) {}
