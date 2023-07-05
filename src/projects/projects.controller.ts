@@ -3,7 +3,10 @@ import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
     constructor(private projectsService: ProjectsService) {}
