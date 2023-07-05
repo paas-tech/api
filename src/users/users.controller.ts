@@ -1,9 +1,9 @@
 import { SanitizedUser } from './types/sanitized-user.type';
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Req, UnauthorizedException } from '@nestjs/common';
-import { SetSshDto } from './dto/set-ssh.dto';
+import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -38,11 +38,5 @@ export class UsersController {
 
     }
 
-    // PATCH /users/:username/ssh
-    // This action adds a key ${setSshDto} to a user's keys
-    @Patch(':username/ssh')
-    async setSshKey(@Body() setSshDto: SetSshDto) {
-        // TODO: implement correctly
-        return this.usersService.setSshKey(setSshDto);
-    }
+
 }
