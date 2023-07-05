@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
 import { AccessToken } from './interfaces/accessToken';
-import { UsersService } from '../users/users.service';
+import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -33,7 +33,6 @@ export class AuthService {
     }
 
     return this.usersService.sanitizeOutput(user);
-
   }
 
   // Sign user in by email and password
