@@ -65,7 +65,6 @@ export class AuthController {
         if (!await this.authService.passwordReset(token, passwordResetDto)) {
             throw new HttpException("We were not able to reset your password.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        // This function will always return this message for security reasons
         return "Your password has successfully been updated.";
 
     }
