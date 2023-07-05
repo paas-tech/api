@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, SshKey } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
+import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
