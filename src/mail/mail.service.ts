@@ -17,7 +17,7 @@ const EMAIL_CONFIRMATION_TEMPLATE = `<h2>Welcome to PaasTech!</h2>
 const PASSWORD_RESET_TEMPLATE = `<h2>Password reset</h2>
 <p>Please click the link below to reset your password:</p>
 <p>
-    <a href="{{ url }}">Confirm</a>
+    <a href="{{ url }}">Reset password</a>
 </p>
 
 <p>If you have trouble opening the link, you can copy the following URL into your browser: </p>
@@ -71,7 +71,7 @@ export class MailService {
 
             // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
 
-            //template: './confirmation',
+            //template: './password-reset',
             //context: {
             //    url,
             //},
