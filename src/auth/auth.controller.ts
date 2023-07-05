@@ -5,7 +5,9 @@ import { AccessToken } from './interfaces/accessToken';
 import { Public } from './decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(

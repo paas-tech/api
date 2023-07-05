@@ -3,8 +3,10 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch,
 import { SetSshDto } from './dto/set-ssh.dto';
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-
+@ApiBearerAuth()
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
     constructor(
