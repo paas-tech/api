@@ -7,7 +7,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { MailModule } from './mail/mail.module';
 import { _InternalMailerService } from './mail/mailer.internal.service';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/guards/auth.guard';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 
@@ -26,8 +26,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     AppService,
     {
       provide: APP_GUARD,
-
-      useClass: AuthGuard,
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,

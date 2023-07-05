@@ -24,17 +24,31 @@ export class AuthService {
   }
 
   // Sign user in by email and password
-  async login(credentials: LoginUserDto): Promise<UserLogin> {
-    const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
-    const passwordHash = user.password;
-    const isCorrectPassword = await bcrypt.compare(credentials.password, passwordHash);
-    if (!isCorrectPassword || !passwordHash) {
+  async login(credentials: LoginUserDto): Promise<AccessToken> {
+    const user = await this.validateUser(credentials);
+    if (!user) {
       throw new UnauthorizedException();
     }
 
     // Add a username in the JWT token
-    const payload = { username: user.username, isAdmin: user.isAdmin, id: user.id };
+    const payload = {
+      sub: user['id'],
+      username: user['username'],
+      isAdmin: user['isAdmin'],
+    };
 
     return { accessToken: await this.jwtService.signAsync(payload), isAdmin: user.isAdmin };
+  }
+
+  async validateUser(credentials: LoginUserDto): Promise<SanitizedUser> {
+    const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
+    if (user && (await bcrypt.compare(credentials.password, user.password))) {
+      return {
+        id: user.id,
+        username: user.username,
+        isAdmin: user.isAdmin,
+      };
+    }
+    return null;
   }
 }
