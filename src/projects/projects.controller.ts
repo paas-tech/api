@@ -1,18 +1,31 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  InternalServerErrorException,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
-import { RepositoryRequest, RepositoryResponse } from 'paastech-proto/types/proto/git-repo-manager';
+import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { GitRepoManagerService } from './git-repo-manager.service';
 import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
 import { DeleteRepositoryDto } from './dto/delete-repository.dto';
+import { PrismaService } from 'src/prisma.service';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private projectsService: ProjectsService, private gitRepoManagerService: GitRepoManagerService) {}
+  constructor(private projectsService: ProjectsService, private gitRepoManagerService: GitRepoManagerService, private prisma: PrismaService) {}
 
   // GET /projects
   // This action returns all of the authenticated user's projects
@@ -36,20 +49,20 @@ export class ProjectsController {
     */
   @Post()
   @UsePipes(new ValidationPipe())
-  async createRepository(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    // Check if project name is not already used for this user
-    const project = await this.projectsService.findOneByName(request.name, user.id);
-    if (project) {
-      throw new BadRequestException('Project already exists');
-    }
-
-    const createdProject = await this.projectsService.create(user.id, request);
+  async create(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
+    const createdProject = await this.projectsService.create(user.id, request.name);
     // Create the project's repository
-    const projectPath = `${createdProject.uuid}`;
+    const projectPath = `${createdProject.id}`;
     const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(projectPath);
 
     // Send the gRPC request to create the repository
-    await this.gitRepoManagerService.create(repositoryRequest);
+    try {
+      await this.gitRepoManagerService.create(repositoryRequest);
+    } catch (e) {
+      // If the repository creation fails, delete the project from the database
+      await this.projectsService.delete(createdProject.id, user.id);
+      throw new InternalServerErrorException(`Failed to create repository for project ${createdProject.id}`);
+    }
 
     return createdProject;
   }

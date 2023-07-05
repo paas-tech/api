@@ -16,12 +16,13 @@ export class GitRepoManagerService implements OnModuleInit {
 
   async create(request: RepositoryRequest): Promise<RepositoryResponse> {
     try {
+      console.log(request);
       return await firstValueFrom(this.gitRepoManager.createRepository(request));
     } catch (error) {
       if (error.code === 6) {
         throw new HttpException('Repository already exists', 409);
       } else {
-        throw new HttpException('Internal server error', 500);
+        throw new HttpException(`Internal server error: ${error}`, 500);
       }
     }
   }
@@ -31,7 +32,7 @@ export class GitRepoManagerService implements OnModuleInit {
       return await firstValueFrom(this.gitRepoManager.deleteRepository(request));
     } catch (error) {
       if (error.code === 5) {
-        throw new HttpException('Repository not found', 404);
+        throw new HttpException(`Repository not found: `, 404);
       } else {
         throw new HttpException('Internal server error', 500);
       }

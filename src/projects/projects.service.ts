@@ -1,8 +1,6 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { Project, User } from '@prisma/client';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Project } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { exclude } from 'src/utils/prisma-exclude';
 import { SanitizedProject } from './types/sanitized-project.type';
 
@@ -11,71 +9,92 @@ export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
   private sanitizeOutput(project: Project): SanitizedProject {
-    return exclude(project, ['id', 'userId']);
+    return exclude(project, ['userId']);
   }
 
-  async create(userId: number, project: CreateProjectDto): Promise<SanitizedProject> {
+  async create(userId: string, name: string): Promise<SanitizedProject> {
+    // Retrieve the project before deleting it
+    const project = await this.prisma.project.findFirst({ where: { name } });
+
+    if (project) {
+      throw new ConflictException(`Project with name ${name} already exists`);
+    }
+
     const createdProject = await this.prisma.project.create({
       data: {
-        name: project.name,
-        uuid: uuidv4(),
+        name,
         userId: userId,
       },
     });
 
-    const sanitizedOutput = this.sanitizeOutput(createdProject);
-
-    return {
-      ...sanitizedOutput,
-      uuid: createdProject.uuid,
-    };
+    return this.sanitizeOutput(createdProject);
   }
 
-  async findOne(uuid: string, userId: number): Promise<SanitizedProject> {
-    const user = await this.prisma.user.findFirstOrThrow({
-      where: { id: userId },
-    });
+  async findOne(projectId: string, userId: string): Promise<SanitizedProject> {
+    const user = await this.prisma.user
+      .findFirstOrThrow({
+        where: { id: userId },
+      })
+      .catch(() => {
+        throw new NotFoundException(`User with uuid ${userId} not found`);
+      });
     // if user is admin, we can check
     if (user.isAdmin) {
-      const project = await this.prisma.project.findFirstOrThrow({
-        where: { uuid },
-      });
+      const project = await this.prisma.project
+        .findFirstOrThrow({
+          where: { id: projectId },
+        })
+        .catch(() => {
+          throw new NotFoundException(`Project with uuid ${projectId} not found`);
+        });
       return project;
     }
 
     const project = await this.prisma.project
       .findFirstOrThrow({
-        where: { userId, uuid },
+        where: { userId, id: projectId },
       })
       .catch(() => {
-        throw new NotFoundException(`Project with uuid ${uuid} not found`);
+        throw new NotFoundException(`Project with uuid ${projectId} not found`);
       });
     return project;
   }
 
-  async findOneByName(name: string, userId: number): Promise<SanitizedProject> {
-    const user = await this.prisma.user.findFirstOrThrow({
-      where: { id: userId },
-    });
+  async findOneByName(name: string, userId: string): Promise<SanitizedProject> {
+    const user = await this.prisma.user
+      .findFirstOrThrow({
+        where: { id: userId },
+      })
+      .catch(() => {
+        throw new NotFoundException(`User with uuid ${userId} not found`);
+      });
     // if user is admin, we can check
     if (user.isAdmin) {
-      const project = await this.prisma.project.findFirstOrThrow({
-        where: { name: name },
-      });
+      const project = await this.prisma.project
+        .findFirstOrThrow({
+          where: { name: name },
+        })
+        .catch(() => {
+          throw new NotFoundException(`Project with name ${name} not found`);
+        });
       return project;
     }
 
-    const project = await this.prisma.project.findFirst({
-      where: { userId, name: name },
-    });
+    const project = await this.prisma.project
+      .findFirstOrThrow({
+        where: { userId, name: name },
+      })
+      .catch(() => {
+        throw new NotFoundException(`Project with name ${name} not found`);
+      });
 
     return project;
   }
 
-  async delete(uuid: string, userId: number): Promise<SanitizedProject> {
+  async delete(projectId: string, userId: string): Promise<SanitizedProject> {
     // Retrieve the project before deleting it
-    const project = await this.prisma.project.findFirstOrThrow({ where: { uuid } }).catch(() => {
-      throw new NotFoundException(`Project with uuid ${uuid} not found`);
+    const project = await this.prisma.project.findFirstOrThrow({ where: { id: projectId } }).catch(() => {
+      throw new NotFoundException(`Project with uuid ${projectId} not found`);
     });
 
     // Check if user exists
@@ -85,7 +104,7 @@ export class ProjectsService {
 
     // if user is admin we can delete the project
     if (user?.isAdmin) {
-      await this.prisma.project.delete({ where: { uuid } });
+      await this.prisma.project.delete({ where: { id: projectId } });
       return this.sanitizeOutput(project);
     }
 
@@ -93,18 +112,22 @@ export class ProjectsService {
     if (userId !== project.userId) throw new UnauthorizedException();
 
     // delete the project
-    await this.prisma.project.delete({ where: { uuid } }).catch(() => {
+    await this.prisma.project.delete({ where: { id: projectId } }).catch(() => {
       throw new InternalServerErrorException('Could not delete the project');
     });
 
     return this.sanitizeOutput(project);
   }
 
-  async findAll(userId: number): Promise<SanitizedProject[]> {
+  async findAll(userId: string): Promise<SanitizedProject[]> {
     // check if user is admin
-    const user = await this.prisma.user.findFirstOrThrow({
-      where: { id: userId },
-    });
+    const user = await this.prisma.user
+      .findFirstOrThrow({
+        where: { id: userId },
+      })
+      .catch(() => {
+        throw new NotFoundException(`User with id ${userId} not found`);
+      });
 
     // If the user is admin we return every project in the database
     if (user.isAdmin) {

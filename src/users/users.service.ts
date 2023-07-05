@@ -21,29 +21,31 @@ export class UsersService {
   }
 
   async create(user: CreateUserDto): Promise<SanitizedUser> {
-    return this.sanitizeOutput(await this.prisma.user.create({
-      data: {
-        username: user.username,
-        email: user.email,
-        password: await this.passwd_encrypt(user.password),
-        isAdmin: false,
-      }
-    }));
+    return this.sanitizeOutput(
+      await this.prisma.user.create({
+        data: {
+          username: user.username,
+          email: user.email,
+          password: await this.passwd_encrypt(user.password),
+          isAdmin: false,
+        },
+      }),
+    );
   }
 
   async validateEmail(email: string): Promise<boolean> {
-      // Check that email address doesn't already exist in the db
-      return !await this.findOne({email});
+    // Check that email address doesn't already exist in the db
+    return !(await this.findOne({ email }));
   }
 
   async validateUsername(username: string): Promise<boolean> {
-      // Check that username doesn't already exist
-      return !await this.findOne({username});
+    // Check that username doesn't already exist
+    return !(await this.findOne({ username }));
   }
 
-  async findOne(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<SanitizedUser|null> {
+  async findOne(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<SanitizedUser | null> {
     const user = await this.prisma.user.findUnique({
-      where: userUniqueInput
+      where: userUniqueInput,
     });
 
     if (user) {
@@ -53,14 +55,14 @@ export class UsersService {
     }
   }
 
-  async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User|null> {
+  async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User | null> {
     return await this.prisma.user.findUnique({
-      where: userUniqueInput
+      where: userUniqueInput,
     });
   }
 
   async delete(where: Prisma.UserWhereUniqueInput) {
-    return await this.prisma.user.delete({where});
+    return await this.prisma.user.delete({ where });
   }
 
   setSshKey(sshKey: SetSshDto): string {
