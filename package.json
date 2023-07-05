@@ -2,6 +2,9 @@
   "name": "paastech-api",
   "private": true,
   "version": "1.0.0",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "description": "PaaSTech client API",
   "scripts": {
     "build": "nest build",
