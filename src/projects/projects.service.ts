@@ -22,15 +22,24 @@ export class ProjectsService {
     if (project) {
       throw new ConflictException(`Project with name ${name} already exists`);
     }
+    return await this.prisma.$transaction(async (tx) => {
+      const createdProject = await tx.project.create({
+        data: {
+          name,
+          userId: userId,
+        },
+      });
 
-    const createdProject = await this.prisma.project.create({
-      data: {
-        name,
-        userId: userId,
-      },
+      const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(createdProject.id);
+
+      try {
+        await this.gitRepoManagerService.create(repositoryRequest);
+      } catch (e) {
+        throw new InternalServerErrorException(`Failed to create repository for project ${createdProject.id}`);
+      }
+
+      return this.sanitizeOutput(createdProject);
     });
-
-    return this.sanitizeOutput(createdProject);
   }
 
   async findOne(projectId: string, userId: string): Promise<SanitizedProject> {
@@ -105,21 +114,25 @@ export class ProjectsService {
       throw new NotFoundException(`User with id ${userId} not found`);
     });
 
-    // if user is admin we can delete the project
-    if (user?.isAdmin) {
-      await this.prisma.project.delete({ where: { id: projectId } });
+    return await this.prisma.$transaction(async (tx) => {
+      // if not authorized to delete the project (not owner of project)
+      if (!user.isAdmin && userId !== project.userId) throw new UnauthorizedException();
+
+      // delete the project
+      await tx.project.delete({ where: { id: projectId } }).catch(() => {
+        throw new InternalServerErrorException(`Failed to delete project ${projectId}`);
+      });
+
+      // Send the grpc request to delete the repository
+      const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(projectId);
+      try {
+        await this.gitRepoManagerService.delete(repositoryRequest);
+      } catch (e) {
+        throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      }
+
       return this.sanitizeOutput(project);
-    }
-
-    // if not authorized to delete the project (not owner of project)
-    if (userId !== project.userId) throw new UnauthorizedException();
-
-    // delete the project
-    await this.prisma.project.delete({ where: { id: projectId } }).catch(() => {
-      throw new InternalServerErrorException('Could not delete the project');
     });
-
-    return project;
   }
 
   async findAll(userId: string): Promise<SanitizedProject[]> {
