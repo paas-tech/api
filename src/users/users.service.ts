@@ -36,11 +36,11 @@ export class UsersService {
     return !await this.findOne({ email });
   }
 
-  async validateEmailNonce(uuid: string): Promise<boolean> {
+  async validateEmailNonce(email_nonce: string): Promise<boolean> {
     try {
       await this.prisma.user.update({
         where: {
-          emailNonce: uuid,
+          emailNonce: email_nonce,
         },
         data: {
           emailNonce: null
@@ -51,6 +51,41 @@ export class UsersService {
       return false;
     }
 
+  }
+
+
+  async updatePassword(id: string, password: string): Promise<boolean> {
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: id
+        },
+        data: {
+          passwordNonce: null,
+          password: await this.passwd_encrypt(password)
+        }
+      })
+      return true;
+    } catch (err) {
+      return false;
+    }
+
+  }
+
+  async updatePasswordNonce(token: string, id: string): Promise<boolean> {
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: id,
+        },
+        data: {
+          passwordNonce: token
+        }
+      })
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
 

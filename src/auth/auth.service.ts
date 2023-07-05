@@ -7,7 +7,9 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
 import { MailService } from 'src/mail/mail.service';
-
+import { PasswordRequestDto } from './dto/password-request.dto';
+import {v4 as uuidv4} from 'uuid';
+import { PasswordResetDto } from './dto/password-reset.dto';
 
 @Injectable()
 export class AuthService {
@@ -72,4 +74,35 @@ export class AuthService {
     }
     return this.usersService.validateEmailNonce(token);
   }
+
+
+  // request password reset
+  async passwordRequest(passwordRequestDto: PasswordRequestDto): Promise<void> {
+    try {
+      let user = await this.usersService.findOneUnsanitized({email: passwordRequestDto.email})
+      if (user) {
+        let passwordNonce = uuidv4()
+        await this.usersService.updatePasswordNonce(passwordNonce, user.id);
+        await this.mailService.sendPasswordReset(passwordRequestDto.email, passwordNonce);
+      }
+    } catch (err) {
+      return;
+    }
+  }
+
+  // reset password
+  async passwordReset(token: string, passwordResetDto: PasswordResetDto) : Promise<boolean> {
+    if (passwordResetDto.password !== passwordResetDto.passwordVerification) {
+      return false;
+    }
+    let user = await this.usersService.findOneUnsanitized({email: passwordResetDto.email})
+    if (!user || user.passwordNonce !== token) {
+      return false;
+    } 
+    if (!await this.usersService.updatePassword(user.id, passwordResetDto.password)) {
+      return false;
+    }
+    return true;
+  }
+
 }
