@@ -28,6 +28,7 @@
     "@nestjs/jwt": "^10.1.0",
     "@nestjs/microservices": "^10.0.3",
     "@nestjs/passport": "^10.0.0",
+    "@nestjs/microservices": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.0.12",
     "@prisma/client": "^4.16.1",
@@ -39,6 +40,7 @@
     "paastech-proto": "github:paastech-cloud/proto",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
+    "paastech-proto": "github:paastech-cloud/proto",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.0"
