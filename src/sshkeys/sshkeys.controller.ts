@@ -14,7 +14,7 @@ export class SshKeysController {
     async setSshKey(@Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
         try {
             if (!await this.sshkeysService.setSshKey(setSshDto, req['user']?.username)) {
-                throw new HttpException("SSH key could not be created.", HttpStatus.INTERNAL_SERVER_ERROR)
+                return new HttpException("There already exists a ssh key with this name.", HttpStatus.BAD_REQUEST);
             }
             return "SSH key was successfully created."
         } catch(err) {

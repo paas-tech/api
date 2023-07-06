@@ -76,9 +76,7 @@ export class SshKeysService {
     if (!await this.checkSshKey(createSshKeyDto)) {
       return false;
     }
-    if (!await this.create(createSshKeyDto)) {
-        return false;
-    }
+    await this.create(createSshKeyDto);
     return true;
   }
 
