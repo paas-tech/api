@@ -1,14 +1,18 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-ENV NODE_ENV=production
 
 COPY package*.json ./
 COPY prisma ./prisma/
 
+# install with devDependencies
 RUN npm install --frozen-lockfile
 COPY . .
 
 RUN npm run build
+
+# install without devDependencies for next stage
+RUN rm -r node_modules/
+RUN npm install --frozen-lockfile --production
 
 FROM node:20-alpine
 
