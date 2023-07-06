@@ -72,19 +72,20 @@ export class UsersService {
 
   }
 
-  async updatePasswordNonce(token: string, id: string): Promise<boolean> {
+  async regeneratePasswordNonce(id: string): Promise<string> {
     try {
+      let passwordNonce = uuidv4()
       await this.prisma.user.update({
         where: {
           id: id,
         },
         data: {
-          passwordNonce: token
+          passwordNonce: passwordNonce
         }
       })
-      return true;
+      return passwordNonce;
     } catch (err) {
-      return false;
+      return null;
     }
   }
 

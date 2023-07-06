@@ -35,8 +35,8 @@ export class AuthController {
     // POST /auth/confirm/:token
     // This path lets the user confirm his email
     @Public()
-    @Post('confirm')
-    async confirmEmail(@Query('token') token: string): Promise<string> {
+    @Post('confirm/:token')
+    async confirmEmail(@Param('token') token: string): Promise<string> {
         if (!await this.authService.confirmEmail(token)) {
             throw new HttpException("No user with these specifications has been found.", HttpStatus.BAD_REQUEST)
         }
@@ -60,8 +60,8 @@ export class AuthController {
     // POST /auth/password/reset
     // This path lets the user reset his password
     @Public()
-    @Post('password/reset')
-    async resetPassword(@Query('token') token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
+    @Post('password/reset/:token')
+    async resetPassword(@Param('token') token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
         if (!await this.authService.passwordReset(token, passwordResetDto)) {
             throw new HttpException("We were not able to reset your password.", HttpStatus.INTERNAL_SERVER_ERROR);
         }

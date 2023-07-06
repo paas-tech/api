@@ -30,7 +30,7 @@ export class AuthService {
 
     let user = await this.usersService.create(createUserDto);
     
-    if (!await this.mailService.sendUserConfirmation(createUserDto.email, user.emailNonce)) {
+    if (!await this.mailService.sendUserConfirmation(user.email, user.emailNonce)) {
       throw new HttpException("Email could not be sent", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -81,8 +81,10 @@ export class AuthService {
     try {
       let user = await this.usersService.findOneUnsanitized({email: passwordRequestDto.email})
       if (user) {
-        let passwordNonce = uuidv4()
-        await this.usersService.updatePasswordNonce(passwordNonce, user.id);
+        let passwordNonce = await this.usersService.regeneratePasswordNonce(user.id);
+        if (!passwordNonce) {
+          return;
+        }
         await this.mailService.sendPasswordReset(passwordRequestDto.email, passwordNonce);
       }
     } catch (err) {
@@ -95,8 +97,8 @@ export class AuthService {
     if (passwordResetDto.password !== passwordResetDto.passwordVerification) {
       return false;
     }
-    let user = await this.usersService.findOneUnsanitized({email: passwordResetDto.email})
-    if (!user || user.passwordNonce !== token) {
+    let user = await this.usersService.findOneUnsanitized({passwordNonce: token})
+    if (!user) {
       return false;
     } 
     if (!await this.usersService.updatePassword(user.id, passwordResetDto.password)) {
