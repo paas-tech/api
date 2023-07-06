@@ -8,7 +8,6 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
 import { MailService } from 'src/mail/mail.service';
 import { PasswordRequestDto } from './dto/password-request.dto';
-import {v4 as uuidv4} from 'uuid';
 import { PasswordResetDto } from './dto/password-reset.dto';
 
 @Injectable()
