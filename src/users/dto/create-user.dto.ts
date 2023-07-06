@@ -12,7 +12,7 @@ export class CreateUserDto {
     email: string;
 
     @IsNotEmpty()
-    // The official documentation for bcrypt states that : "Per bcrypt implementation, only the first 72 bytes of a string are used."
+    // The documentation for the bcrypt package states that : "Per bcrypt implementation, only the first 72 bytes of a string are used."
     // So we need to check for maximal length & bytelength of the password
     @MaxLength(72)
     @IsByteLength(0, 72)
