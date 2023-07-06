@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @Controller('users')
 export class UsersController {
     constructor(
-        private usersService: UsersService
+        private usersService: UsersService,
     ) {}
 
     // GET /users/:username
@@ -20,7 +20,7 @@ export class UsersController {
         if (req['user']?.username !== username) {
             throw new UnauthorizedException();
         }
-        return await this.usersService.findOne({username});
+        return await this.usersService.findOne({ username });
     }
 
     // DELETE /users/:username
@@ -29,9 +29,9 @@ export class UsersController {
     @Delete(':username')
     async delete(@Param('username') username: string): Promise<String> {
         try {
-            await this.usersService.delete({username});
+            await this.usersService.delete({ username });
         }
-        catch(err) {
+        catch (err) {
             throw new HttpException('User deletion failed', HttpStatus.BAD_REQUEST, { cause: err });
         }
         return "User deleted successfully";
