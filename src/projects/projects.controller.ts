@@ -15,21 +15,11 @@ import {
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
 import { PrismaService } from 'src/prisma.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { GetUser } from 'src/auth/decorators/user.decorator';
-import { GitRepoManagerService } from './git-repo-manager.service';
-import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
-import { DeleteRepositoryDto } from './dto/delete-repository.dto';
-import { PrismaService } from 'src/prisma.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@ApiBearerAuth()
-@ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
   constructor(private projectsService: ProjectsService, private prisma: PrismaService) {}
@@ -38,14 +28,14 @@ export class ProjectsController {
   // This action returns all of the authenticated user's projects
   @Get()
   async findAll(@GetUser() user: UserDecoratorType) {
-    return this.projectsService.findAll(user.id);
+    return this.projectsService.findAll(user.sub);
   }
 
   // GET /projects/:uuid
   // This action returns a #${id} project;
   @Get(':uuid')
   async findOne(@Param('uuid') id: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    return this.projectsService.findOne(id, user.id);
+    return this.projectsService.findOne(id, user.sub);
   }
 
   // POST /projects
@@ -57,19 +47,17 @@ export class ProjectsController {
   @Post()
   @UsePipes(new ValidationPipe())
   async create(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    const createdProject = await this.projectsService.create(user.id, request.name);
-    // Send the gRPC request to create the repository
-
+    const createdProject = await this.projectsService.create(user.sub, request.name);
     return createdProject;
   }
 
   // DELETE /projects/:uuid
   // This action deletes a #${id} project
   @Delete(':uuid')
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   async delete(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     // Delete the project from the database
-    const project = await this.projectsService.delete(uuid, user.id);
+    const project = await this.projectsService.delete(uuid, user.sub);
 
     return project;
   }

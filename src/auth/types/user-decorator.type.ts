@@ -1,5 +1,5 @@
 export interface UserDecoratorType {
-  username: string;
+  sub: string;
   isAdmin: boolean;
   id: string;
 }

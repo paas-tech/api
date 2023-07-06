@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
-import { AccessToken, UserLogin } from './interfaces/accessToken';
+import { AccessToken } from './interfaces/accessToken';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -46,7 +46,7 @@ export class AuthService {
       isAdmin: user['isAdmin'],
     };
 
-    return { accessToken: await this.jwtService.signAsync(payload), isAdmin: user.isAdmin };
+    return { accessToken: await this.jwtService.signAsync(payload) };
   }
 
   async validateUser(credentials: LoginUserDto): Promise<SanitizedUser> {
@@ -58,6 +58,7 @@ export class AuthService {
         isAdmin: user.isAdmin,
       };
     }
+    console.log(user);
     return null;
   }
 
