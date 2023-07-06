@@ -8,7 +8,7 @@ import { CreateSshKeyDto } from './dto/create-sshkey.dto';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
-export class SshKeyService {
+export class SshKeysService {
   constructor(
     private prisma: PrismaService, 
     private usersService: UsersService) {}

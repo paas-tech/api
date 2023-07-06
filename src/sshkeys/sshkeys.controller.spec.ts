@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SshKeyController } from './sshkeys.controller';
+import { SshKeysController } from './sshkeys.controller';
 
-describe('SshController', () => {
-  let controller: SshKeyController;
+describe('SshKeysController', () => {
+  let controller: SshKeysController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [SshKeyController],
+      controllers: [SshKeysController],
     }).compile();
 
-    controller = module.get<SshKeyController>(SshKeyController);
+    controller = module.get<SshKeysController>(SshKeysController);
   });
 
   it('should be defined', () => {

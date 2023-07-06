@@ -10,7 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guards/roles.guard';
-import { SshModule } from './ssh/ssh.module';
+import { SshKeysModule } from './sshkeys/sshkeys.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { SshModule } from './ssh/ssh.module';
     ProjectsModule,
     AuthModule,
     MailModule,
-    SshModule,
+    SshKeysModule,
   ],
   controllers: [AppController],
   providers: [

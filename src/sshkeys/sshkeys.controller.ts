@@ -1,11 +1,11 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import { SetSshKeyDto } from './dto/set-sshkey.dto';
-import { SshKeyService } from './sshkeys.service';
+import { SshKeysService } from './sshkeys.service';
 
 @Controller('sshkeys')
-export class SshKeyController {
+export class SshKeysController {
     constructor(
-        private sshService: SshKeyService
+        private sshkeysService: SshKeysService
     ) {}
 
     // PATCH /sshkeys/:username
@@ -13,7 +13,7 @@ export class SshKeyController {
     @Post(':username')
     async setSshKey(@Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
         try {
-            if (!await this.sshService.setSshKey(setSshDto, req['user']?.username)) {
+            if (!await this.sshkeysService.setSshKey(setSshDto, req['user']?.username)) {
                 throw new HttpException("SSH key could not be created.", HttpStatus.INTERNAL_SERVER_ERROR)
             }
             return "SSH key was successfully created."
@@ -27,7 +27,7 @@ export class SshKeyController {
     @Delete(':username/:name')
     async deleteSshKey(@Query() name: string, @Req() req: Request) {
         try {
-            if(!await this.sshService.removeSshKey(name, req['user']?.username)) {
+            if(!await this.sshkeysService.removeSshKey(name, req['user']?.username)) {
                 throw new HttpException("User or key not found.", HttpStatus.INTERNAL_SERVER_ERROR)
             }
         } catch(err) {
@@ -42,7 +42,7 @@ export class SshKeyController {
     @Get(':username')
     async getSshKeys(@Req() req: Request) {
         try {
-            return await this.sshService.getAllSshKeys(req['user']?.username);
+            return await this.sshkeysService.getAllSshKeys(req['user']?.username);
         } catch(err) {
             console.log(err)
             throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
