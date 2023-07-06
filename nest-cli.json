@@ -4,7 +4,13 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["mail/templates/**/*.hbs"],
+    "assets": [
+      "mail/templates/**/*.hbs",
+      {
+        "include": "../node_modules/paastech-proto/**/*.proto",
+        "outDir": "dist/src"
+      }
+    ],
     "plugins": ["@nestjs/swagger"],
     "watchAssets": true
   }
