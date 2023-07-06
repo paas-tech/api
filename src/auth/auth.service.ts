@@ -93,9 +93,6 @@ export class AuthService {
 
   // reset password
   async passwordReset(token: string, passwordResetDto: PasswordResetDto) : Promise<boolean> {
-    if (passwordResetDto.password !== passwordResetDto.passwordVerification) {
-      return false;
-    }
     let user = await this.usersService.findOneUnsanitized({passwordNonce: token})
     if (!user) {
       return false;
