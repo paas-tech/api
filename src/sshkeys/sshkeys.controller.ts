@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Req } from '@nestjs/common';
-import { SetSshKeyDto } from './dto/set-sshkey.dto';
 import { SshKeysService } from './sshkeys.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import { CreateSshKeyDto } from './dto/create-sshkey.dto';
+import { GetUser } from 'src/auth/decorators/user.decorator';
+import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
 
 @Controller('sshkeys')
 export class SshKeysController {
@@ -12,9 +14,9 @@ export class SshKeysController {
     // POST /sshkeys/my
     // This action adds a key ${setSshDto} to a user's keys
     @Post('my')
-    async setSshKey(@Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
+    async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: UserDecoratorType) {
         try {
-            if (!await this.sshkeysService.setSshKey(setSshDto, req['user']?.username)) {
+            if (!await this.sshkeysService.createSshKey(user.sub, createSshDto)) {
                 return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
             }
             return "SSH key was successfully created."
@@ -25,14 +27,11 @@ export class SshKeysController {
 
     // DELETE /sshkeys/:username
     // This action removes a key ${setSshDto} to a user's keys
-    @Delete(':username/:uuid')
-    async deleteSshKey(@Param('uuid') uuidSshKey: string, @Param('username') username: string, @Req() req: Request) {
+    @Delete('my/:uuid')
+    async deleteSshKey(@Param('uuid') uuidSshKey: string, @GetUser() user: UserDecoratorType) {
         try {
-            if (username !== req['user']?.username) {
-                throw new HttpException("You can only delete ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
-            }
-            if(!await this.sshkeysService.removeSshKey(uuidSshKey, username)) {
-                throw new HttpException("User or key not found.", HttpStatus.INTERNAL_SERVER_ERROR)
+            if(!await this.sshkeysService.removeSshKey(user.sub, uuidSshKey)) {
+                throw new HttpException("User or key not found.", HttpStatus.BAD_REQUEST)
             }
         } catch(err) {
             throw new HttpException("SSH key could not be removed.", HttpStatus.INTERNAL_SERVER_ERROR);

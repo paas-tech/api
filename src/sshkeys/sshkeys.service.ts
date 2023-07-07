@@ -1,29 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { SetSshKeyDto } from './dto/set-sshkey.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma, SshKey } from '@prisma/client';
 import { exclude } from 'src/utils/prisma-exclude';
 import { SanitizedSshKey } from './types/sanitized-ssh-key';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class SshKeysService {
   constructor(
-    private prisma: PrismaService, 
-    private usersService: UsersService) {}
+    private prisma: PrismaService,
+  ) {}
 
 
   private sanitizeOutput(sshKey: SshKey): SanitizedSshKey {
-    return exclude(sshKey, ['id', 'userId', 'createdAt', 'updatedAt']);
+    // all fields seem to be okay to return because SSH keys can only
+    // be consulted by either their owner or the administrators
+    // still, we leave the method in case it is needed later
+    return exclude(sshKey, []);
   }
 
-  async create(sshKey: CreateSshKeyDto): Promise<SanitizedSshKey> {
+  async createSshKey(userId: string, sshKey: CreateSshKeyDto): Promise<SanitizedSshKey> {
     return this.sanitizeOutput(await this.prisma.sshKey.create({
       data: {
         value: sshKey.value,
         name: sshKey.name,
-        userId: sshKey.userId
+        userId,
       }
     }));
   }
@@ -50,78 +51,33 @@ export class SshKeysService {
     return await this.prisma.sshKey.delete({where});
   }
 
-  async checkSshKey(createSshKeyDto: CreateSshKeyDto): Promise<boolean> {
-    let sshkey = await this.prisma.sshKey.findFirst({where: {value: createSshKeyDto.value}});
-    if (sshkey) {
-      return false;
-    }
 
-    sshkey = await this.prisma.sshKey.findFirst({
-      where: {
-        name: createSshKeyDto.name, 
-        userId: createSshKeyDto.userId
-      }})
-    if (sshkey) {
-      return false;
-    }
-    return true;
-  }
-
-  async setSshKey(sshKey: SetSshKeyDto, username: string): Promise<boolean> {
-    const user = await this.usersService.findOneUnsanitized({username});
-    const createSshKeyDto: CreateSshKeyDto = {
-        value: sshKey.publicKey,
-        userId: user.id,
-    }
-    if (sshKey.name) {
-      createSshKeyDto.name = sshKey.name;
-    }
-
-    if (!await this.checkSshKey(createSshKeyDto)) {
-      return false;
-    }
-    await this.create(createSshKeyDto);
-    return true;
-  }
-
-
-  async removeSshKey(uuidSshKey: string, username: string): Promise<boolean> {
+  async removeSshKey(userId: string, sshKeyUuid: string): Promise<boolean> {
     try {
-        const user = await this.usersService.findOneUnsanitized({username});
-        if (!user) {
-            return false;
-        }
-        await this.prisma.sshKey.delete({
+        const result = await this.prisma.sshKey.deleteMany({
           where: {
-          id: uuidSshKey
-        }})
-        return true; 
+            id: sshKeyUuid,
+            userId,
+          }
+        })
+        return result.count > 0;
     } catch(err) {
         return false;
     }
   }
 
 
-  async getSshKeysOfUser(username: string): Promise<SanitizedSshKey[]> {
-    const user = await this.usersService.findOneUnsanitized({username})
+  async getSshKeysOfUser(userId: string): Promise<SanitizedSshKey[]> {
     const sshKeys = await this.prisma.sshKey.findMany({
       where: {
-        userId: user.id
+        userId
       }
     });
-    return this.sanitizeKeys(sshKeys)
-  }
-
-  sanitizeKeys(sshKeys: SshKey[]): SanitizedSshKey[] {
-    sshKeys.forEach(function(key, index) {
-      sshKeys[index] = this.sanitizeOutput(key)
-    }, this);
-    return sshKeys;
+    return sshKeys.map(this.sanitizeOutput);
   }
 
   async getAllSshKeys(): Promise<SanitizedSshKey[]> {
-    let sshKeys = await this.prisma.sshKey.findMany()
-    return this.sanitizeKeys(sshKeys)
+    return (await this.prisma.sshKey.findMany()).map(this.sanitizeOutput);
   }
 
 
