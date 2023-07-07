@@ -20,16 +20,6 @@ export class SshKeysService {
   }
 
   async createSshKey(userId: string, sshKey: CreateSshKeyDto): Promise<SanitizedSshKey> {
-    // prevent keys with the same name
-    if (sshKey.name && await this.prisma.sshKey.findFirst(
-      {
-        where: {
-          userId, 
-          name: sshKey.name
-        }
-      })) {
-      return null;
-    }
     return this.sanitizeOutput(await this.prisma.sshKey.create({
       data: {
         value: sshKey.value,
@@ -49,6 +39,12 @@ export class SshKeysService {
     } else {
       return null;
     }
+  }
+
+  async findOneUnsanitized(sshKeyUniqueInput: Prisma.SshKeyWhereUniqueInput): Promise<SshKey|null> {
+    return await this.prisma.sshKey.findUnique({
+      where: sshKeyUniqueInput
+    });
   }
 
   async delete(where: Prisma.SshKeyWhereUniqueInput) {

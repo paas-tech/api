@@ -43,9 +43,9 @@ export class SshKeysController {
     // GET /sshkeys/my
     // This action gets all the ssh keys of the user
     @Get('my')
-    async getSshKeys(@GetUser() user: UserDecoratorType) {
+    async getSshKeys(@Req() req: Request) {
         try {
-            return await this.sshkeysService.getSshKeysOfUser(user.sub);
+            return await this.sshkeysService.getSshKeysOfUser(req['user'].username);
         } catch(err) {
             throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
