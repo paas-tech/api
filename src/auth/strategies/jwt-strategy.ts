@@ -25,12 +25,26 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
   
   private static extractFromCookie(req: Request): string|null {
+    const name = AuthService.ACCESS_COOKIE_NAME;
+
+    // this is dark magic as a work-around
+    // the expressjs normal "req.cookies" always returns undefined for some reason
+    // so this is the basic reimplementation of it
+    const cookies: { [key: string]: string } = req.headers.cookie?.split('; ').reduce(
+      (acc: { [key: string]: string }, cur: string) => {
+        const split = cur.split('=');
+        acc[split[0]] = split[1];
+        return acc;
+      },
+      {}
+    );
+
     if (
-        req.cookies && 
-        AuthService.ACCESS_COOKIE_NAME in req.cookies && 
-        req.cookies.token.length > 0
+        cookies && 
+        name in cookies && 
+        cookies[name].length > 0
     ) {
-      return req.cookies.token;
+      return cookies[name];
     }
     return null;
   }
