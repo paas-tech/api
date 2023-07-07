@@ -15,7 +15,7 @@ CREATE TABLE "users" (
 
 -- CreateTable
 CREATE TABLE "ssh_keys" (
-    "id" SERIAL NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "value" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
