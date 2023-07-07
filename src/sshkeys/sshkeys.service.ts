@@ -47,13 +47,17 @@ export class SshKeysService {
 
 
   async removeSshKey(userId: string, sshKeyUuid: string): Promise<boolean> {
-    const result = await this.prisma.sshKey.deleteMany({
-      where: {
-        id: sshKeyUuid,
-        userId,
-      }
-    })
-    return result.count > 0;
+    try {
+        const result = await this.prisma.sshKey.deleteMany({
+          where: {
+            id: sshKeyUuid,
+            userId,
+          }
+        })
+        return result.count > 0;
+    } catch(err) {
+        return false;
+    }
   }
 
 
