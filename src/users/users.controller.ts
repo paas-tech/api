@@ -3,6 +3,8 @@ import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req, Unautho
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/auth/decorators/user.decorator';
+import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -11,6 +13,13 @@ export class UsersController {
     constructor(
         private usersService: UsersService,
     ) {}
+
+    // GET /users
+    // This action returns a user's profile
+    @Get()
+    async getProfile(@GetUser() user: RequestUser): Promise<SanitizedUser> {
+        return await this.usersService.findOne({ id: user.id });
+    }
 
     // GET /users/:username
     // This action returns a #${username} user
