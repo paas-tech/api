@@ -10,6 +10,7 @@ import { MailService } from 'src/mail/mail.service';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { JwtEncodedUserData, RequestUser } from './types/jwt-user-data.type';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,7 @@ export class AuthService {
   }
 
   // Sign user in by email and password
-  async login(credentials: LoginUserDto): Promise<AccessToken> {
+  async login(response: Response, credentials: LoginUserDto): Promise<AccessToken> {
     const user = await this.validateUser(credentials);
     if(!user) {
       throw new UnauthorizedException();
@@ -54,7 +55,14 @@ export class AuthService {
       isAdmin: user['isAdmin']
     };
 
-    return {accessToken: await this.jwtService.signAsync(payload)};
+    const jwt = await this.jwtService.signAsync(payload);
+
+    response.cookie(AuthService.ACCESS_COOKIE_NAME, jwt, {
+      httpOnly: true,
+      maxAge: 6 * 60 * 60 * 1000 // 6 hours
+    })
+
+    return {accessToken: jwt};
   }
 
   async validateUser(credentials: LoginUserDto): Promise<RequestUser|null> {

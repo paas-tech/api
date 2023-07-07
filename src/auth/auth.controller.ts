@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AccessToken } from './dto/responses/access-token.dto';
@@ -8,6 +8,7 @@ import { SanitizedUser } from 'src/users/types/sanitized-user.type';
 import { ApiTags } from '@nestjs/swagger';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
+import { Response as EResponse } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -20,8 +21,8 @@ export class AuthController {
     // This action returns an access token
     @Public()
     @Post('login')
-    async login(@Body() loginUserDto: LoginUserDto): Promise<AccessToken> {
-        return this.authService.login(loginUserDto);
+    async login(@Response({passthrough: true}) response: EResponse, @Body() loginUserDto: LoginUserDto): Promise<AccessToken> {
+        return this.authService.login(response, loginUserDto);
     }
 
     // POST /auth/register
