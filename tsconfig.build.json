@@ -1,4 +1,8 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts", "node_modules/paastech-proto/types/proto/**/*.ts"],
+  "exclude": ["dist", "test", "**/*spec.ts"]
 }
