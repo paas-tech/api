@@ -17,9 +17,9 @@ export class UsersController {
     // This action returns a #${username} user
     @Get(':username')
     async findOne(@Param('username') username: string, @Req() req: Request): Promise<SanitizedUser> {
-        /*if (req['user']?.username !== username) {
+        if ((req['user'] as unknown as {username:string|null})?.username !== username) {
             throw new UnauthorizedException();
-        }*/
+        }
         return await this.usersService.findOne({ username });
     }
 
