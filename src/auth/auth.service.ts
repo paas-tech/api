@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
-import { AccessToken } from './interfaces/accessToken';
+import { AccessToken } from './dto/responses/access-token.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { AccessToken } from './interfaces/accessToken';
+import { AccessToken } from './dto/responses/access-token.dto';
 import { Public } from './decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
