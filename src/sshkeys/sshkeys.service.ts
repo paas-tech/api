@@ -41,12 +41,6 @@ export class SshKeysService {
     }
   }
 
-  async findOneUnsanitized(sshKeyUniqueInput: Prisma.SshKeyWhereUniqueInput): Promise<SshKey|null> {
-    return await this.prisma.sshKey.findUnique({
-      where: sshKeyUniqueInput
-    });
-  }
-
   async delete(where: Prisma.SshKeyWhereUniqueInput) {
     return await this.prisma.sshKey.delete({where});
   }
