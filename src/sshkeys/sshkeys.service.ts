@@ -91,15 +91,10 @@ export class SshKeysService {
         if (!user) {
             return false;
         }
-        const count = await this.prisma.sshKey.deleteMany({
-            where: {
-                id: uuidSshKey,
-                userId: user.id
-            }
-        })
-        if (count && count.count == 0) {
-          return false;
-        }
+        await this.prisma.sshKey.delete({
+          where: {
+          id: uuidSshKey
+        }})
         return true; 
     } catch(err) {
         return false;
@@ -107,13 +102,17 @@ export class SshKeysService {
   }
 
 
-  async getAllSshKeys(username: string): Promise<SanitizedSshKey[]> {
+  async getSshKeysOfUser(username: string): Promise<SanitizedSshKey[]> {
     const user = await this.usersService.findOneUnsanitized({username})
     const sshKeys = await this.prisma.sshKey.findMany({
       where: {
         userId: user.id
       }
     });
+    return this.sanitizeKeys(sshKeys)
+  }
+
+  sanitizeKeys(sshKeys: SshKey[]): SanitizedSshKey[] {
     sshKeys.forEach(function(key, index) {
       sshKeys[index] = this.sanitizeOutput(key)
     }, this);
@@ -122,10 +121,7 @@ export class SshKeysService {
 
   async getAllSshKeys(): Promise<SanitizedSshKey[]> {
     let sshKeys = await this.prisma.sshKey.findMany()
-    sshKeys.forEach(function(key, index) {
-      sshKeys[index] = this.sanitizeOutput(key)
-    }, this);
-    return sshKeys;
+    return this.sanitizeKeys(sshKeys)
   }
 
 
