@@ -98,7 +98,6 @@ export class SshKeysService {
                 userId: user.id
             }
         })
-        console.log(count)
         if (count && count.count == 0) {
           return false;
         }

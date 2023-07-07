@@ -19,7 +19,6 @@ export class SshKeysController {
             }
             return "SSH key was successfully created."
         } catch(err) {
-            console.log(err)
             throw new HttpException("SSH key could not be added to this account.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -60,7 +59,6 @@ export class SshKeysController {
     @Get()
     async getAllSshKeys(@Req() req: Request) {
         try {
-            console.log(req['user'])
             return await this.sshkeysService.getAllSshKeys();
         } catch(err) {
             throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
