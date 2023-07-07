@@ -13,6 +13,9 @@ import { JwtEncodedUserData, RequestUser } from './types/jwt-user-data.type';
 
 @Injectable()
 export class AuthService {
+
+  public static ACCESS_COOKIE_NAME = "access"
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
