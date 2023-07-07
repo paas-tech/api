@@ -33,7 +33,7 @@ export class SshKeysController {
     async deleteSshKey(@Param('uuid') uuidSshKey: string, @GetUser() user: UserDecoratorType) {
         try {
             if(!await this.sshkeysService.removeSshKey(user.sub, uuidSshKey)) {
-                throw new HttpException("User or key not found.", HttpStatus.BAD_REQUEST)
+                return new HttpException("User or key not found.", HttpStatus.BAD_REQUEST)
             }
         } catch(err) {
             throw new HttpException("SSH key could not be removed.", HttpStatus.INTERNAL_SERVER_ERROR);
