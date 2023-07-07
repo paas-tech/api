@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { PomegranateService } from './projects/pomegranate.service';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
+    PomegranateService,
   ],
 })
 export class AppModule {}
