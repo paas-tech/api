@@ -9,6 +9,7 @@ import { SanitizedUser } from 'src/users/types/sanitized-user.type';
 import { MailService } from 'src/mail/mail.service';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
+import { JwtEncodedUserData, RequestUser } from './types/jwt-user-data.type';
 
 @Injectable()
 export class AuthService {
@@ -44,7 +45,7 @@ export class AuthService {
     }
 
     // Add a username in the JWT token
-    const payload = {
+    const payload: JwtEncodedUserData = {
       sub: user['id'],
       username: user['username'],
       isAdmin: user['isAdmin']
@@ -53,7 +54,7 @@ export class AuthService {
     return {accessToken: await this.jwtService.signAsync(payload)};
   }
 
-  async validateUser(credentials: LoginUserDto): Promise<SanitizedUser> {
+  async validateUser(credentials: LoginUserDto): Promise<RequestUser|null> {
     const user = await this.usersService.findOneUnsanitized({email: credentials.email});
     if (user && !user.emailNonce && await bcrypt.compare(credentials.password, user.password)) {
       return {
