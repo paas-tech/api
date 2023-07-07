@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
 import { SshKeysService } from './sshkeys.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
@@ -43,9 +43,9 @@ export class SshKeysController {
     // GET /sshkeys/my
     // This action gets all the ssh keys of the user
     @Get('my')
-    async getSshKeys(@Req() req: Request) {
+    async getSshKeys(@GetUser() user: UserDecoratorType) {
         try {
-            return await this.sshkeysService.getSshKeysOfUser(req['user'].username);
+            return await this.sshkeysService.getSshKeysOfUser(user.sub);
         } catch(err) {
             throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
