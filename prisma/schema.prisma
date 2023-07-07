@@ -28,7 +28,7 @@ model User {
 }
 
 model SshKey {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   value     String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
