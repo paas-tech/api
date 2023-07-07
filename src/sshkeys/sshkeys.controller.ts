@@ -11,8 +11,11 @@ export class SshKeysController {
     // PATCH /sshkeys/:username
     // This action adds a key ${setSshDto} to a user's keys
     @Post(':username')
-    async setSshKey(@Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
+    async setSshKey(@Param('username') username: string, @Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
         try {
+            if (username !== req['user']?.username) {
+                throw new HttpException("You can only create ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
+            }
             if (!await this.sshkeysService.setSshKey(setSshDto, req['user']?.username)) {
                 return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
             }
@@ -43,11 +46,13 @@ export class SshKeysController {
     // GET /sshkeys/:username
     // This action gets all the ssh keys of the user
     @Get(':username')
-    async getSshKeys(@Req() req: Request) {
+    async getSshKeys(@Param('username') username: string, @Req() req: Request) {
         try {
-            return await this.sshkeysService.getAllSshKeys(req['user']?.username);
+            if (username !== req['user']?.username && !req['user'].isAdmin) {
+                return new HttpException("You can only delete ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
+            }
+            return await this.sshkeysService.getAllSshKeys(username);
         } catch(err) {
-            console.log(err)
             throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
