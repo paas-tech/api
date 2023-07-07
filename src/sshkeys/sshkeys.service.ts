@@ -55,22 +55,21 @@ export class SshKeysService {
     if (sshkey) {
       return false;
     }
-    if (createSshKeyDto.name) {
-      sshkey = await this.prisma.sshKey.findFirst({
-        where: {
-          name: createSshKeyDto.name, 
-          userId: createSshKeyDto.userId
-        }})
-      if (sshkey) {
-        return false;
-      }
+
+    sshkey = await this.prisma.sshKey.findFirst({
+      where: {
+        name: createSshKeyDto.name, 
+        userId: createSshKeyDto.userId
+      }})
+    if (sshkey) {
+      return false;
     }
     return true;
   }
 
   async setSshKey(sshKey: SetSshKeyDto, username: string): Promise<boolean> {
-    let user = await this.usersService.findOneUnsanitized({username});
-    let createSshKeyDto: CreateSshKeyDto = {
+    const user = await this.usersService.findOneUnsanitized({username});
+    const createSshKeyDto: CreateSshKeyDto = {
         value: sshKey.publicKey,
         userId: user.id,
     }
@@ -88,11 +87,11 @@ export class SshKeysService {
 
   async removeSshKey(uuidSshKey: string, username: string): Promise<boolean> {
     try {
-        let user = await this.usersService.findOneUnsanitized({username});
+        const user = await this.usersService.findOneUnsanitized({username});
         if (!user) {
             return false;
         }
-        let count = await this.prisma.sshKey.deleteMany({
+        const count = await this.prisma.sshKey.deleteMany({
             where: {
                 id: uuidSshKey,
                 userId: user.id
@@ -108,9 +107,9 @@ export class SshKeysService {
   }
 
 
-  async getSshKeysOfUser(username?: string): Promise<SanitizedSshKey[]> {
-    let user = await this.usersService.findOneUnsanitized({username})
-    let sshKeys = await this.prisma.sshKey.findMany({
+  async getAllSshKeys(username: string): Promise<SanitizedSshKey[]> {
+    const user = await this.usersService.findOneUnsanitized({username})
+    const sshKeys = await this.prisma.sshKey.findMany({
       where: {
         userId: user.id
       }

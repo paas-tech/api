@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
-import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Req } from '@nestjs/common';
 import { SetSshKeyDto } from './dto/set-sshkey.dto';
 import { SshKeysService } from './sshkeys.service';
+import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 
 @Controller('sshkeys')
 export class SshKeysController {
