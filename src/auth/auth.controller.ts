@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AccessToken } from './dto/responses/access-token.dto';
@@ -36,7 +36,7 @@ export class AuthController {
     // This path lets the user confirm his email
     @Public()
     @Post('confirm/:token')
-    async confirmEmail(@Param('token') token: string): Promise<string> {
+    async confirmEmail(@Param('token', new ParseUUIDPipe()) token: string): Promise<string> {
         if (!await this.authService.confirmEmail(token)) {
             throw new HttpException("No user with these specifications has been found.", HttpStatus.BAD_REQUEST)
         }
@@ -61,7 +61,7 @@ export class AuthController {
     // This path lets the user reset his password
     @Public()
     @Post('password/reset/:token')
-    async resetPassword(@Param('token') token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
+    async resetPassword(@Param('token', new ParseUUIDPipe()) token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
         if (!await this.authService.passwordReset(token, passwordResetDto)) {
             throw new HttpException("We were not able to reset your password.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
