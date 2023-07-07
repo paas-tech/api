@@ -27,7 +27,6 @@ export class SshKeysController {
     @Delete(':username/:name')
     async deleteSshKey(@Param('name') name: string, @Param('username') username: string, @Req() req: Request) {
         try {
-            console.log(name)
             if (username !== req['user']?.username) {
                 throw new HttpException("You can only delete ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
             }

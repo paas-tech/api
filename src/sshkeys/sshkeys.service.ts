@@ -87,7 +87,6 @@ export class SshKeysService {
         if (!user) {
             return false;
         }
-        console.log('name :' + name)
         let count = await this.prisma.sshKey.deleteMany({
             where: {
                 name: name,
