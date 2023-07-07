@@ -1,10 +1,4 @@
-import{ IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateSshKeyDto } from './create-sshkey.dto';
 
-export class SetSshKeyDto {
-    @IsNotEmpty()
-    publicKey: string;
-
-    @MaxLength(30)
-    @IsOptional()
-    name: string;
-}
+export class SetSshKeyDto extends PartialType(CreateSshKeyDto) {}
