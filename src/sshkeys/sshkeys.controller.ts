@@ -57,7 +57,7 @@ export class SshKeysController {
     // This action gets all ssh keys
     @AdminOnly()
     @Get()
-    async getAllSshKeys(@Req() req: Request) {
+    async getAllSshKeys() {
         try {
             return await this.sshkeysService.getAllSshKeys();
         } catch(err) {
