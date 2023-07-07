@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { SetSshKeyDto } from './dto/set-sshkey.dto';
 import { SshKeysService } from './sshkeys.service';
 
@@ -8,32 +9,30 @@ export class SshKeysController {
         private sshkeysService: SshKeysService
     ) {}
 
-    // PATCH /sshkeys/:username
+    // POST /sshkeys/my
     // This action adds a key ${setSshDto} to a user's keys
-    @Post(':username')
-    async setSshKey(@Param('username') username: string, @Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
+    @Post('my')
+    async setSshKey(@Body() setSshDto: SetSshKeyDto, @Req() req: Request) {
         try {
-            if (username !== req['user']?.username) {
-                throw new HttpException("You can only create ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
-            }
             if (!await this.sshkeysService.setSshKey(setSshDto, req['user']?.username)) {
                 return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
             }
             return "SSH key was successfully created."
         } catch(err) {
+            console.log(err)
             throw new HttpException("SSH key could not be added to this account.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // DELETE /sshkeys/:username
     // This action removes a key ${setSshDto} to a user's keys
-    @Delete(':username/:name')
-    async deleteSshKey(@Param('name') name: string, @Param('username') username: string, @Req() req: Request) {
+    @Delete(':username/:uuid')
+    async deleteSshKey(@Param('uuid') uuidSshKey: string, @Param('username') username: string, @Req() req: Request) {
         try {
             if (username !== req['user']?.username) {
                 throw new HttpException("You can only delete ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
             }
-            if(!await this.sshkeysService.removeSshKey(name, username)) {
+            if(!await this.sshkeysService.removeSshKey(uuidSshKey, username)) {
                 throw new HttpException("User or key not found.", HttpStatus.INTERNAL_SERVER_ERROR)
             }
         } catch(err) {
@@ -43,15 +42,26 @@ export class SshKeysController {
     }
 
 
-    // GET /sshkeys/:username
+    // GET /sshkeys/my
     // This action gets all the ssh keys of the user
-    @Get(':username')
-    async getSshKeys(@Param('username') username: string, @Req() req: Request) {
+    @Get('my')
+    async getSshKeys(@Req() req: Request) {
         try {
-            if (username !== req['user']?.username && !req['user'].isAdmin) {
-                return new HttpException("You can only delete ssh keys that belong to you.", HttpStatus.UNAUTHORIZED)
-            }
-            return await this.sshkeysService.getAllSshKeys(username);
+            return await this.sshkeysService.getSshKeysOfUser(req['user'].username);
+        } catch(err) {
+            throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    // GET /sshkeys/
+    // This action gets all ssh keys
+    @AdminOnly()
+    @Get()
+    async getAllSshKeys(@Req() req: Request) {
+        try {
+            console.log(req['user'])
+            return await this.sshkeysService.getAllSshKeys();
         } catch(err) {
             throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
         }

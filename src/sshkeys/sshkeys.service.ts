@@ -15,7 +15,7 @@ export class SshKeysService {
 
 
   private sanitizeOutput(sshKey: SshKey): SanitizedSshKey {
-    return exclude(sshKey, ['id', 'value', 'userId', 'createdAt', 'updatedAt']);
+    return exclude(sshKey, ['id', 'userId', 'createdAt', 'updatedAt']);
   }
 
   async create(sshKey: CreateSshKeyDto): Promise<SanitizedSshKey> {
@@ -55,13 +55,15 @@ export class SshKeysService {
     if (sshkey) {
       return false;
     }
-    sshkey = await this.prisma.sshKey.findFirst({
-      where: {
-        name: createSshKeyDto.name, 
-        userId: createSshKeyDto.userId
-      }})
-    if (sshkey) {
-      return false;
+    if (createSshKeyDto.name) {
+      sshkey = await this.prisma.sshKey.findFirst({
+        where: {
+          name: createSshKeyDto.name, 
+          userId: createSshKeyDto.userId
+        }})
+      if (sshkey) {
+        return false;
+      }
     }
     return true;
   }
@@ -71,8 +73,11 @@ export class SshKeysService {
     let createSshKeyDto: CreateSshKeyDto = {
         value: sshKey.publicKey,
         userId: user.id,
-        name: sshKey.name
     }
+    if (sshKey.name) {
+      createSshKeyDto.name = sshKey.name;
+    }
+
     if (!await this.checkSshKey(createSshKeyDto)) {
       return false;
     }
@@ -81,7 +86,7 @@ export class SshKeysService {
   }
 
 
-  async removeSshKey(name: string, username: string): Promise<boolean> {
+  async removeSshKey(uuidSshKey: string, username: string): Promise<boolean> {
     try {
         let user = await this.usersService.findOneUnsanitized({username});
         if (!user) {
@@ -89,7 +94,7 @@ export class SshKeysService {
         }
         let count = await this.prisma.sshKey.deleteMany({
             where: {
-                name: name,
+                id: uuidSshKey,
                 userId: user.id
             }
         })
@@ -104,13 +109,21 @@ export class SshKeysService {
   }
 
 
-  async getAllSshKeys(username: string): Promise<SanitizedSshKey[]> {
+  async getSshKeysOfUser(username?: string): Promise<SanitizedSshKey[]> {
     let user = await this.usersService.findOneUnsanitized({username})
     let sshKeys = await this.prisma.sshKey.findMany({
       where: {
         userId: user.id
       }
-    })
+    });
+    sshKeys.forEach(function(key, index) {
+      sshKeys[index] = this.sanitizeOutput(key)
+    }, this);
+    return sshKeys;
+  }
+
+  async getAllSshKeys(): Promise<SanitizedSshKey[]> {
+    let sshKeys = await this.prisma.sshKey.findMany()
     sshKeys.forEach(function(key, index) {
       sshKeys[index] = this.sanitizeOutput(key)
     }, this);

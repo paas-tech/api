@@ -1,4 +1,4 @@
-import{ IsNotEmpty, Length } from 'class-validator';
+import{ IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 
 export class CreateSshKeyDto {
     @IsNotEmpty()
@@ -7,7 +7,7 @@ export class CreateSshKeyDto {
     @IsNotEmpty()
     userId: string;
 
-    @IsNotEmpty()
-    @Length(1, 40)
-    name: string;
+    @MaxLength(30)
+    @IsOptional()
+    name?: string;
 }
