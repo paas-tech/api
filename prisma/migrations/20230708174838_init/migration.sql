@@ -17,6 +17,7 @@ CREATE TABLE "users" (
 CREATE TABLE "ssh_keys" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "value" TEXT NOT NULL,
+    "name" VARCHAR(30),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
     "user_id" UUID NOT NULL,
@@ -28,23 +29,12 @@ CREATE TABLE "ssh_keys" (
 CREATE TABLE "projects" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(40) NOT NULL,
+    "config" JSONB NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3),
     "user_id" UUID NOT NULL,
 
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "deployments" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "name" VARCHAR(40) NOT NULL,
-    "config" JSONB NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3),
-    "project_id" UUID NOT NULL,
-
-    CONSTRAINT "deployments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -64,6 +54,3 @@ ALTER TABLE "ssh_keys" ADD CONSTRAINT "ssh_keys_user_id_fkey" FOREIGN KEY ("user
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "deployments" ADD CONSTRAINT "deployments_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
