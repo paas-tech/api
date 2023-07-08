@@ -19,7 +19,9 @@ export class SshKeysController {
             if (!await this.sshkeysService.createSshKey(user.sub, createSshDto)) {
                 return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
             }
-            return "SSH key was successfully created."
+            return {
+                "status": "OK"
+            }
         } catch(err) {
             throw new HttpException("SSH key could not be added to this account.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -36,7 +38,9 @@ export class SshKeysController {
         } catch(err) {
             throw new HttpException("SSH key could not be removed.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "SSH key has successfully been removed."
+        return {
+            "status": "removed"
+        }
     }
 
 
