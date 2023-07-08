@@ -11,4 +11,4 @@ jobs:
     with:
       dockerfile: Dockerfile
       context: .
-      image_name: api
+      image_name: ${{ github.repository }}
