@@ -40,7 +40,10 @@ export class SshKeysController {
     // This action gets all the ssh keys of the user
     @Get('my')
     async getSshKeys(@GetUser() user: UserDecoratorType) {
-        return await this.sshkeysService.getSshKeysOfUser(user.sub);
+        return {
+            "status": "OK",
+            "content": await this.sshkeysService.getSshKeysOfUser(user.sub)
+        }
     }
 
 
@@ -49,6 +52,9 @@ export class SshKeysController {
     @AdminOnly()
     @Get()
     async getAllSshKeys() {
-        return await this.sshkeysService.getAllSshKeys();
+        return {
+            "status": "OK",
+            "content": await this.sshkeysService.getAllSshKeys()
+        }
     }
 }
