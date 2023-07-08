@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { SshKeysService } from './sshkeys.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
@@ -19,19 +19,21 @@ export class SshKeysController {
             return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
         }
         return {
-            "status": "OK"
+            "statusCode": 200,
+            "message": "Ssh key has successfully been created."
         }
     }
 
     // DELETE /sshkeys/:username
     // This action removes a key ${setSshDto} to a user's keys
     @Delete('my/:uuid')
-    async deleteSshKey(@Param('uuid') uuidSshKey: string, @GetUser() user: UserDecoratorType) {
+    async deleteSshKey(@Param('uuid', new ParseUUIDPipe()) uuidSshKey: string, @GetUser() user: UserDecoratorType) {
         if(!await this.sshkeysService.removeSshKey(user.sub, uuidSshKey)) {
             throw new HttpException("No ssh key with these specifications could be found.", HttpStatus.BAD_REQUEST)
         }
         return {
-            "status": "removed"
+            "statusCode": 200,
+            "message": "Ssh key has successfully been deleted."
         }
     }
 
@@ -41,7 +43,7 @@ export class SshKeysController {
     @Get('my')
     async getSshKeys(@GetUser() user: UserDecoratorType) {
         return {
-            "status": "OK",
+            "statusCode": 200,
             "content": await this.sshkeysService.getSshKeysOfUser(user.sub)
         }
     }
@@ -53,7 +55,7 @@ export class SshKeysController {
     @Get()
     async getAllSshKeys() {
         return {
-            "status": "OK",
+            "statusCode": 200,
             "content": await this.sshkeysService.getAllSshKeys()
         }
     }
