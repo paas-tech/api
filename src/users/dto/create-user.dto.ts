@@ -1,15 +1,16 @@
-import{ IsByteLength, IsEmail, IsNotEmpty, Length, Matches, MaxLength, MinLength } from 'class-validator';
+import{ IsByteLength, IsEmail, IsNotEmpty, Length, Matches, MaxLength } from 'class-validator';
 import { PASSWORD_REGEX, USERNAME_REGEX } from 'src/utils/constants';
 
 export class CreateUserDto {
     @IsNotEmpty()
     @Length(3, 30)
     @Matches(USERNAME_REGEX, {
-        message: 'Username should be 3 to 30 character long, it starts with a letter and only has letters, digits and underscores.'
+        message: 'Should start with a letter and end with a letter or a figure. Can contain alphanumerical characters, hyphens and underscores.'
     })
     username: string;
 
     @IsEmail()
+    @MaxLength(100)
     email: string;
 
     @IsNotEmpty()
