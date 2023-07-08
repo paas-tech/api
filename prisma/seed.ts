@@ -20,7 +20,23 @@ const prisma = new PrismaClient();
  * @returns {Promise<void>}
  */
 async function main(): Promise<void> {
+  // check if variables are set
+  const vars = [
+    process.env.DEV_USER_PASSWORD,
+    process.env.DEV_USER_A_PUBLIC_KEY,
+    process.env.DEV_USER_B_PUBLIC_KEY,
+  ];
+
+  if (vars.some((v) => v === undefined)) {
+    throw new Error(
+      'Please set all the required variables in the .env file, refer to the .env.example file',
+    );
+  }
+
   const hash = await bcrypt.hash(process.env.DEV_USER_PASSWORD, 10);
+
+  const publicKeyUserA = process.env.DEV_USER_A_PUBLIC_KEY;
+  const publicKeyUserB = process.env.DEV_USER_B_PUBLIC_KEY;
 
   await prisma.$transaction(async (tx) => {
     // add users
@@ -84,7 +100,7 @@ async function main(): Promise<void> {
         update: {},
         create: {
           id: 1,
-          value: 'PUT YOUR PUBLIC SSH KEY HERE',
+          value: publicKeyUserA,
           userId: '83522487-e320-4e13-83b3-d1c0726942cc',
         },
       }),
@@ -95,7 +111,7 @@ async function main(): Promise<void> {
         update: {},
         create: {
           id: 2,
-          value: 'PUT YOUR PUBLIC SSH KEY HERE',
+          value: publicKeyUserB,
           userId: '1cc1f0e0-371d-4923-9ac1-1c176966c5a9',
         },
       }),
