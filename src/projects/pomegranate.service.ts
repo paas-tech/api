@@ -1,18 +1,17 @@
 import { HttpException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Client, ClientGrpc } from '@nestjs/microservices';
 import {
-  ApplyConfigDeploymentRequest,
-  DeleteDeploymentRequest,
-  DeploymentLogRequest,
-  DeploymentStatRequest,
-  DeploymentStats,
-  DeploymentStatusRequest,
   PomegranateClient,
-  ResponseMessage,
-  ResponseMessageStatus,
-  RestartDeploymentRequest,
-  StartDeploymentRequest,
-  StopDeploymentRequest,
+  DeployRequest,
+  DeleteImageRequest,
+  EmptyResponse,
+  GetStatusRequest,
+  GetStatusResponse,
+  GetStatisticsRequest,
+  GetStatisticsResponse,
+  GetLogsRequest,
+  GetLogsResponse,
+  StopDeployRequest,
 } from 'paastech-proto/types/proto/pomegranate';
 import { firstValueFrom } from 'rxjs';
 import { grpcClientOptions } from 'src/utils/grpc/grpc-client.options';
@@ -26,33 +25,9 @@ export class PomegranateService implements OnModuleInit {
     this.pomegranate = this.client.getService<PomegranateClient>('Pomegranate');
   }
 
-  async startDeployment(request: StartDeploymentRequest): Promise<ResponseMessage> {
+  async deploy(request: DeployRequest): Promise<EmptyResponse> {
     try {
-      return await firstValueFrom(this.pomegranate.startDeployment(request));
-    } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
-    }
-  }
-  async restartDeployment(request: RestartDeploymentRequest): Promise<ResponseMessage> {
-    try {
-      return await firstValueFrom(this.pomegranate.restartDeployment(request));
-    } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
-    }
-  }
-  async deleteDeployment(request: DeleteDeploymentRequest): Promise<ResponseMessage> {
-    try {
-      return await firstValueFrom(this.pomegranate.deleteDeployment(request));
+      return await firstValueFrom(this.pomegranate.deploy(request));
     } catch (error) {
       // TODO
       if (error.code === 6) {
@@ -63,9 +38,9 @@ export class PomegranateService implements OnModuleInit {
     }
   }
 
-  async stopDeployment(request: StopDeploymentRequest): Promise<ResponseMessage> {
+  async stopDeployment(request: StopDeployRequest): Promise<EmptyResponse> {
     try {
-      return await firstValueFrom(this.pomegranate.stopDeployment(request));
+      return await firstValueFrom(this.pomegranate.stopDeploy(request));
     } catch (error) {
       // TODO
       if (error.code === 6) {
@@ -76,9 +51,9 @@ export class PomegranateService implements OnModuleInit {
     }
   }
 
-  async deploymentStatus(request: DeploymentStatusRequest): Promise<ResponseMessageStatus> {
+  async deleteImage(request: DeleteImageRequest): Promise<EmptyResponse> {
     try {
-      return await firstValueFrom(this.pomegranate.deploymentStatus(request));
+      return await firstValueFrom(this.pomegranate.deleteImage(request));
     } catch (error) {
       // TODO
       if (error.code === 6) {
@@ -89,9 +64,9 @@ export class PomegranateService implements OnModuleInit {
     }
   }
 
-  async deploymentLog(request: DeploymentLogRequest): Promise<ResponseMessage> {
+  async getLogs(request: GetLogsRequest): Promise<GetLogsResponse> {
     try {
-      return await firstValueFrom(this.pomegranate.deploymentStatus(request));
+      return await firstValueFrom(this.pomegranate.getLogs(request));
     } catch (error) {
       // TODO
       if (error.code === 6) {
@@ -102,9 +77,9 @@ export class PomegranateService implements OnModuleInit {
     }
   }
 
-  async deploymentStat(request: DeploymentStatRequest): Promise<DeploymentStats> {
+  async getStatistics(request: GetStatisticsRequest): Promise<GetStatisticsResponse> {
     try {
-      return await firstValueFrom(this.pomegranate.deploymentStat(request));
+      return await firstValueFrom(this.pomegranate.getStatistics(request));
     } catch (error) {
       // TODO
       if (error.code === 6) {
@@ -115,9 +90,9 @@ export class PomegranateService implements OnModuleInit {
     }
   }
 
-  async applyConfigDeployment(request: ApplyConfigDeploymentRequest): Promise<ResponseMessage> {
+  async getStatus(request: GetStatusRequest): Promise<GetStatusResponse> {
     try {
-      return await firstValueFrom(this.pomegranate.applyConfigDeployment(request));
+      return await firstValueFrom(this.pomegranate.getStatus(request));
     } catch (error) {
       // TODO
       if (error.code === 6) {

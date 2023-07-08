@@ -7,16 +7,16 @@ import { GitRepoManagerService } from './git-repo-manager.service';
 import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { createRepositoryRequest } from 'src/utils/grpc/grpc-request-helpers';
 import {
-  ApplyConfigDeploymentRequest,
-  DeleteDeploymentRequest,
-  DeploymentLogRequest,
-  DeploymentStatRequest,
-  DeploymentStatusRequest,
-  ResponseMessage,
-  ResponseMessageStatus,
-  RestartDeploymentRequest,
-  StartDeploymentRequest,
-  StopDeploymentRequest,
+  DeleteImageRequest,
+  DeployRequest,
+  EmptyResponse,
+  GetLogsRequest,
+  GetLogsResponse,
+  GetStatisticsRequest,
+  GetStatisticsResponse,
+  GetStatusRequest,
+  GetStatusResponse,
+  StopDeployRequest,
 } from 'paastech-proto/types/proto/pomegranate';
 import { PomegranateService } from './pomegranate.service';
 
@@ -144,7 +144,18 @@ export class ProjectsService {
         throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
       }
 
-      // TODO delete deployments
+      // TODO: delete Images
+      // Send the grpc request to delete the repository
+      const deleteImageRequest: DeleteImageRequest = {
+        container_name: projectId,
+        image_name: `${userId}/${projectId}`,
+        image_tag: 'latest',
+      };
+      try {
+        await this.pomegranateService.deleteImage(deleteImageRequest);
+      } catch (e) {
+        throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
+      }
 
       return this.sanitizeOutput(project);
     });
@@ -175,105 +186,73 @@ export class ProjectsService {
 
   // POMEGRANATE
 
-  async startDeployment(projectId: string, userId: string): Promise<ResponseMessage> {
-    // Send the grpc request to start the deployment
-
-    const startDeploymentRequest: StartDeploymentRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
-      user_uuid: userId,
+  async deploy(projectId: string, userId: string, envVars: Record<string, string>): Promise<EmptyResponse> {
+    const deployRequest: DeployRequest = {
+      container_name: projectId,
+      image_name: `${userId}/${projectId}`,
+      image_tag: 'latest',
+      env_vars: envVars,
     };
     try {
-      return await this.pomegranateService.startDeployment(startDeploymentRequest);
+      return await this.pomegranateService.deploy(deployRequest);
     } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      throw new InternalServerErrorException(`Failed to deploy project ${projectId}: ${e}`);
     }
   }
 
-  async restartDeployment(projectId: string, userId: string): Promise<ResponseMessage> {
-    // Send the grpc request to start the deployment
+  async stopDeployment(projectId: string, userId: string): Promise<EmptyResponse> {
+    // TODO:
+    // check if users can stop this deployment
 
-    const restartDeploymentRequest: RestartDeploymentRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
-      user_uuid: userId,
-    };
-    try {
-      return await this.pomegranateService.restartDeployment(restartDeploymentRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
-    }
-  }
-
-  async stopDeployment(projectId: string, userId: string): Promise<ResponseMessage> {
-    // Send the grpc request to start the deployment
-
-    const stopDeploymentRequest: StopDeploymentRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
+    const stopDeploymentRequest: StopDeployRequest = {
+      container_name: projectId,
     };
     try {
       return await this.pomegranateService.stopDeployment(stopDeploymentRequest);
     } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      throw new InternalServerErrorException(`Failed to stop deployment for project ${projectId}: ${e}`);
     }
   }
 
-  async deploymentStatus(projectId: string, userId: string): Promise<ResponseMessageStatus> {
-    // Send the grpc request to start the deployment
+  async getDeploymentLogs(projectId: string, userId: string): Promise<GetLogsResponse> {
+    // TODO:
+    // check if users can get the logs this deployment
 
-    const deploymentStatusRequest: DeploymentStatusRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
+    const getLogsRequest: GetLogsRequest = {
+      container_name: projectId,
     };
     try {
-      return await this.pomegranateService.deploymentStatus(deploymentStatusRequest);
+      return await this.pomegranateService.getLogs(getLogsRequest);
     } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      throw new InternalServerErrorException(`Failed to get logs for deployment ${projectId}: ${e}`);
     }
   }
 
-  async deploymentLog(projectId: string, userId: string): Promise<ResponseMessage> {
-    // Send the grpc request to start the deployment
+  async getStatistics(projectId: string, userId: string): Promise<GetStatisticsResponse> {
+    // TODO:
+    // check if users can get the stats this deployment
 
-    const deploymentLogRequest: DeploymentLogRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
+    const getStatisticsRequest: GetStatisticsRequest = {
+      container_name: projectId,
     };
     try {
-      return await this.pomegranateService.deploymentLog(deploymentLogRequest);
+      return await this.pomegranateService.getStatistics(getStatisticsRequest);
     } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      throw new InternalServerErrorException(`Failed to get the statistics for the project ${projectId}: ${e}`);
     }
   }
 
-  async deploymentStat(projectId: string, userId: string): Promise<ResponseMessage> {
-    // Send the grpc request to start the deployment
+  async getStatus(projectId: string[], userId: string): Promise<GetStatusResponse> {
+    // TODO:
+    // check if users can get the status this deployment
 
-    const deploymentStatRequest: DeploymentStatRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
+    const getStatusRequest: GetStatusRequest = {
+      container_name: projectId,
     };
     try {
-      return await this.pomegranateService.deploymentStat(deploymentStatRequest);
+      return await this.pomegranateService.getStatus(getStatusRequest);
     } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
-    }
-  }
-
-  async applyConfigDeployment(projectId: string, userId: string): Promise<ResponseMessage> {
-    // Send the grpc request to start the deployment
-
-    const applyConfigDeploymentRequest: ApplyConfigDeploymentRequest = {
-      deployment_uuid: 'TODO',
-      project_uuid: projectId,
-      user_uuid: userId,
-      config: 'TODO',
-    };
-    try {
-      return await this.pomegranateService.applyConfigDeployment(applyConfigDeploymentRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      throw new InternalServerErrorException(`Error: ${e}`);
     }
   }
 }

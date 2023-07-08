@@ -19,6 +19,8 @@ import { GetUser } from 'src/auth/decorators/user.decorator';
 import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
 import { PrismaService } from 'src/prisma.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { GetStatusDto } from './dto/get-status.dto';
+import { DeployDto } from './dto/deploy.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -47,8 +49,7 @@ export class ProjectsController {
   @Post()
   @UsePipes(new ValidationPipe())
   async create(@Body() request: CreateProjectDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    const createdProject = await this.projectsService.create(user.sub, request.name);
-    return createdProject;
+    return this.projectsService.create(user.sub, request.name);
   }
 
   // DELETE /projects/:uuid
@@ -57,47 +58,46 @@ export class ProjectsController {
   @UseGuards(JwtAuthGuard)
   async delete(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     // Delete the project from the database
-    const project = await this.projectsService.delete(uuid, user.sub);
-    return project;
+    return this.projectsService.delete(uuid, user.sub);
   }
 
   // POST /projects/:uuid/start
   // This starts a deployment for a project
   @Post(':uuid/deploy')
   @UseGuards(JwtAuthGuard)
-  async deploy(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    // Delete the project from the database
-    const project = await this.projectsService.startDeployment(uuid, user.sub);
-    return project;
+  async deploy(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType, @Body() request: DeployDto): Promise<SanitizedProject> {
+    return this.projectsService.deploy(uuid, user.sub, request.env_vars);
   }
 
-  // POST /projects/:uuid/start
-  // This starts a deployment for a project
+  // POST /projects/:uuid/stop
+  // This stops a deployment for a project
   @Post(':uuid/stop')
   @UseGuards(JwtAuthGuard)
   async stop(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    // Delete the project from the database
-    const project = await this.projectsService.stopDeployment(uuid, user.sub);
-    return project;
+    return this.projectsService.stopDeployment(uuid, user.sub);
   }
 
-  // POST /projects/:uuid/start
-  // This starts a deployment for a project
+  // POST /projects/:uuid/logs
+  // This gets logs for a deployment
   @Post(':uuid/logs')
   @UseGuards(JwtAuthGuard)
   async getLogs(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    // Delete the project from the database
-    const project = await this.projectsService.deploymentLog(uuid, user.sub);
-    return project;
+    return this.projectsService.getDeploymentLogs(uuid, user.sub);
   }
 
-  // POST /projects/:uuid/start
-  // This starts a deployment for a project
+  // POST /projects/:uuid/statistics
+  // This gets statistics for a deployment
   @Post(':uuid/statistics')
   @UseGuards(JwtAuthGuard)
-  async get(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    // Delete the project from the database
-    const project = await this.projectsService.deploymentLog(uuid, user.sub);
-    return project;
+  async getStatistics(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
+    return await this.projectsService.getStatistics(uuid, user.sub);
+  }
+
+  // POST /projects/status
+  // This gets status for one or more deployments
+  @Post('/status')
+  @UseGuards(JwtAuthGuard)
+  async getStatus(@Body() request: GetStatusDto, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
+    return await this.projectsService.getStatus(request.container_names, user.sub);
   }
 }
