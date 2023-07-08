@@ -25,6 +25,11 @@ export class AuthController {
         return this.authService.login(response, loginUserDto);
     }
 
+    @Post('logout')
+    async logout(@Response({passthrough: true}) response: EResponse) {
+        return await this.authService.logout(response);
+    }
+
     // POST /auth/register
     // This action adds a new user
     @Public()

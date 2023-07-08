@@ -65,6 +65,13 @@ export class AuthService {
     return {accessToken: jwt};
   }
 
+  async logout(response: Response) {
+    response.cookie(AuthService.ACCESS_COOKIE_NAME, "", {
+      httpOnly: true,
+      maxAge: 30 * 1000 // expire very soon, the cookie is empty anyways so no need to keep it
+    })
+  }
+
   async validateUser(credentials: LoginUserDto): Promise<RequestUser|null> {
     const user = await this.usersService.findOneUnsanitized({email: credentials.email});
     if (user && !user.emailNonce && await bcrypt.compare(credentials.password, user.password)) {
