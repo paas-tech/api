@@ -15,15 +15,11 @@ export class SshKeysController {
     // This action adds a key ${setSshDto} to a user's keys
     @Post('my')
     async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: UserDecoratorType) {
-        try {
-            if (!await this.sshkeysService.createSshKey(user.sub, createSshDto)) {
-                return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
-            }
-            return {
-                "status": "OK"
-            }
-        } catch(err) {
-            throw new HttpException("SSH key could not be added to this account.", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!await this.sshkeysService.createSshKey(user.sub, createSshDto)) {
+            return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
+        }
+        return {
+            "status": "OK"
         }
     }
 
@@ -31,12 +27,8 @@ export class SshKeysController {
     // This action removes a key ${setSshDto} to a user's keys
     @Delete('my/:uuid')
     async deleteSshKey(@Param('uuid') uuidSshKey: string, @GetUser() user: UserDecoratorType) {
-        try {
-            if(!await this.sshkeysService.removeSshKey(user.sub, uuidSshKey)) {
-                throw new HttpException("No ssh key with these specifications could be found.", HttpStatus.BAD_REQUEST)
-            }
-        } catch(err) {
-            throw new HttpException("SSH key could not be removed.", HttpStatus.INTERNAL_SERVER_ERROR);
+        if(!await this.sshkeysService.removeSshKey(user.sub, uuidSshKey)) {
+            throw new HttpException("No ssh key with these specifications could be found.", HttpStatus.BAD_REQUEST)
         }
         return {
             "status": "removed"
@@ -48,11 +40,7 @@ export class SshKeysController {
     // This action gets all the ssh keys of the user
     @Get('my')
     async getSshKeys(@GetUser() user: UserDecoratorType) {
-        try {
-            return await this.sshkeysService.getSshKeysOfUser(user.sub);
-        } catch(err) {
-            throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return await this.sshkeysService.getSshKeysOfUser(user.sub);
     }
 
 
@@ -61,10 +49,6 @@ export class SshKeysController {
     @AdminOnly()
     @Get()
     async getAllSshKeys() {
-        try {
-            return await this.sshkeysService.getAllSshKeys();
-        } catch(err) {
-            throw new HttpException("SSH keys could not be retrieved.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return await this.sshkeysService.getAllSshKeys();
     }
 }
