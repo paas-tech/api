@@ -117,20 +117,9 @@ export class ProjectsService {
   }
 
   async delete(projectId: string, userId: string): Promise<SanitizedProject> {
-    // Retrieve the project before deleting it
-    const project = await this.prisma.project.findFirstOrThrow({ where: { id: projectId } }).catch(() => {
-      throw new NotFoundException(`Project with uuid ${projectId} not found`);
-    });
-
-    // Check if user exists
-    const user = await this.prisma.user.findFirstOrThrow({ where: { id: userId } }).catch(() => {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    });
+    const project = await this.userAndProjectCheck(projectId, userId);
 
     return await this.prisma.$transaction(async (tx) => {
-      // if not authorized to delete the project (not owner of project)
-      if (!user.isAdmin && userId !== project.userId) throw new UnauthorizedException();
-
       // delete the project
       await tx.project.delete({ where: { id: projectId } }).catch(() => {
         throw new InternalServerErrorException(`Failed to delete project ${projectId}`);
@@ -145,10 +134,9 @@ export class ProjectsService {
       }
 
       // TODO: delete Images
-      // Send the grpc request to delete the repository
       const deleteImageRequest: DeleteImageRequest = {
         container_name: projectId,
-        image_name: `${userId}/${projectId}`,
+        image_name: projectId,
         image_tag: 'latest',
       };
       try {
@@ -189,7 +177,7 @@ export class ProjectsService {
   async deploy(projectId: string, userId: string, envVars: Record<string, string>): Promise<EmptyResponse> {
     const deployRequest: DeployRequest = {
       container_name: projectId,
-      image_name: `${userId}/${projectId}`,
+      image_name: projectId,
       image_tag: 'latest',
       env_vars: envVars,
     };
@@ -201,8 +189,7 @@ export class ProjectsService {
   }
 
   async stopDeployment(projectId: string, userId: string): Promise<EmptyResponse> {
-    // TODO:
-    // check if users can stop this deployment
+    await this.userAndProjectCheck(projectId, userId);
 
     const stopDeploymentRequest: StopDeployRequest = {
       container_name: projectId,
@@ -215,8 +202,7 @@ export class ProjectsService {
   }
 
   async getDeploymentLogs(projectId: string, userId: string): Promise<GetLogsResponse> {
-    // TODO:
-    // check if users can get the logs this deployment
+    await this.userAndProjectCheck(projectId, userId);
 
     const getLogsRequest: GetLogsRequest = {
       container_name: projectId,
@@ -229,8 +215,7 @@ export class ProjectsService {
   }
 
   async getStatistics(projectId: string, userId: string): Promise<GetStatisticsResponse> {
-    // TODO:
-    // check if users can get the stats this deployment
+    await this.userAndProjectCheck(projectId, userId);
 
     const getStatisticsRequest: GetStatisticsRequest = {
       container_name: projectId,
@@ -243,8 +228,9 @@ export class ProjectsService {
   }
 
   async getStatus(projectId: string[], userId: string): Promise<GetStatusResponse> {
-    // TODO:
-    // check if users can get the status this deployment
+    for (const id of projectId) {
+      await this.userAndProjectCheck(id, userId);
+    }
 
     const getStatusRequest: GetStatusRequest = {
       container_name: projectId,
@@ -254,5 +240,20 @@ export class ProjectsService {
     } catch (e) {
       throw new InternalServerErrorException(`Error: ${e}`);
     }
+  }
+
+  async userAndProjectCheck(projectId: string, userId: string): Promise<Project> {
+    const user = await this.prisma.user.findFirstOrThrow({ where: { id: userId } }).catch(() => {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    });
+
+    // Check if the project exists
+    const project = await this.prisma.project.findFirstOrThrow({ where: { id: projectId } }).catch(() => {
+      throw new NotFoundException(`Project with uuid ${projectId} not found`);
+    });
+
+    // if not authorized to stop the project (not owner of project)
+    if (!user.isAdmin && userId !== project.userId) throw new UnauthorizedException();
+    return project;
   }
 }
