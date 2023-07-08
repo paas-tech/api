@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req, Response } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AccessToken } from './dto/responses/access-token.dto';
@@ -26,6 +26,7 @@ export class AuthController {
     }
 
     @Post('logout')
+    @HttpCode(200)
     async logout(@Response({passthrough: true}) response: EResponse) {
         return await this.authService.logout(response);
     }
