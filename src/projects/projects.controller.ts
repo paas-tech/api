@@ -6,6 +6,7 @@ import {
   Get,
   InternalServerErrorException,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -63,7 +64,7 @@ export class ProjectsController {
 
   // POST /projects/:uuid/start
   // This starts a deployment for a project
-  @Post(':uuid/deploy')
+  @Patch(':uuid/deploy')
   @UseGuards(JwtAuthGuard)
   async deploy(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType, @Body() request: DeployDto): Promise<SanitizedProject> {
     return this.projectsService.deploy(uuid, user.sub, request.env_vars);
@@ -77,9 +78,9 @@ export class ProjectsController {
     return this.projectsService.stopDeployment(uuid, user.sub);
   }
 
-  // POST /projects/:uuid/logs
+  // GET /projects/:uuid/logs
   // This gets logs for a deployment
-  @Post(':uuid/logs')
+  @Get(':uuid/logs')
   @UseGuards(JwtAuthGuard)
   async getLogs(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     return this.projectsService.getDeploymentLogs(uuid, user.sub);
@@ -87,7 +88,7 @@ export class ProjectsController {
 
   // POST /projects/:uuid/statistics
   // This gets statistics for a deployment
-  @Post(':uuid/statistics')
+  @Get(':uuid/statistics')
   @UseGuards(JwtAuthGuard)
   async getStatistics(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     return await this.projectsService.getStatistics(uuid, user.sub);

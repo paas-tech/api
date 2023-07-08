@@ -30,11 +30,7 @@ export class PomegranateService implements OnModuleInit {
       return await firstValueFrom(this.pomegranate.deploy(request));
     } catch (error) {
       // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
+      throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
 
@@ -42,12 +38,7 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.stopDeploy(request));
     } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
+      throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
 
@@ -55,12 +46,7 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.deleteImage(request));
     } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
+      throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
 
@@ -68,12 +54,7 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.getLogs(request));
     } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
+      throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
 
@@ -81,12 +62,7 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.getStatistics(request));
     } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
+      throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
 
@@ -94,12 +70,7 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.getStatus(request));
     } catch (error) {
-      // TODO
-      if (error.code === 6) {
-        throw new HttpException('Repository already exists', 409);
-      } else {
-        throw new HttpException(`Internal server error: ${error}`, 500);
-      }
+      throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
 }

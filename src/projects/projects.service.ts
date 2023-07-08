@@ -19,6 +19,7 @@ import {
   StopDeployRequest,
 } from 'paastech-proto/types/proto/pomegranate';
 import { PomegranateService } from './pomegranate.service';
+import { env } from 'process';
 
 @Injectable()
 export class ProjectsService {
@@ -175,17 +176,31 @@ export class ProjectsService {
   // POMEGRANATE
 
   async deploy(projectId: string, userId: string, envVars: Record<string, string>): Promise<EmptyResponse> {
-    const deployRequest: DeployRequest = {
-      container_name: projectId,
-      image_name: projectId,
-      image_tag: 'latest',
-      env_vars: envVars,
-    };
-    try {
-      return await this.pomegranateService.deploy(deployRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Failed to deploy project ${projectId}: ${e}`);
-    }
+    return await this.prisma.$transaction(async (tx) => {
+      await this.userAndProjectCheck(projectId, userId);
+
+      // Update the project config with the merged object
+      await tx.project.update({
+        where: { id: projectId },
+        data: {
+          config: {
+            env: envVars,
+          },
+        },
+      });
+
+      const deployRequest: DeployRequest = {
+        container_name: projectId,
+        image_name: projectId,
+        image_tag: 'latest',
+        env_vars: envVars,
+      };
+      try {
+        return await this.pomegranateService.deploy(deployRequest);
+      } catch (e) {
+        throw new InternalServerErrorException(`Failed to deploy project ${projectId}: ${e}`);
+      }
+    });
   }
 
   async stopDeployment(projectId: string, userId: string): Promise<EmptyResponse> {
