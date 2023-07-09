@@ -127,8 +127,6 @@ export class ProjectsService {
         throw new InternalServerErrorException(`Failed to delete project ${projectId}`);
       });
 
-      // TODO:
-      // Check if the error is a 404 meaning that the image does not exist and we can continue
       try {
         const deleteImageRequest: DeleteImageRequest = {
           container_name: projectId,
@@ -137,7 +135,10 @@ export class ProjectsService {
         };
         await this.pomegranateService.deleteImage(deleteImageRequest);
       } catch (e) {
-        throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
+        // If the image does not exist, we do not throw an error
+        if (e.status !== 404) {
+          throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
+        }
       }
       try {
         // Send the grpc request to delete the repository
@@ -179,7 +180,6 @@ export class ProjectsService {
     return await this.prisma.$transaction(async (tx) => {
       await this.userAndProjectCheck(projectId, userId);
 
-      // Update the project config with the merged object
       await tx.project.update({
         where: { id: projectId },
         data: {
@@ -195,11 +195,7 @@ export class ProjectsService {
         image_tag: 'latest',
         env_vars: envVars,
       };
-      try {
-        return await this.pomegranateService.deploy(deployRequest);
-      } catch (e) {
-        throw new InternalServerErrorException(`Failed to deploy project ${projectId}: ${e}`);
-      }
+      return await this.pomegranateService.deploy(deployRequest);
     });
   }
 
@@ -209,11 +205,7 @@ export class ProjectsService {
     const stopDeploymentRequest: StopDeployRequest = {
       container_name: projectId,
     };
-    try {
-      return await this.pomegranateService.stopDeployment(stopDeploymentRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Failed to stop deployment for project ${projectId}: ${e}`);
-    }
+    return await this.pomegranateService.stopDeployment(stopDeploymentRequest);
   }
 
   async getDeploymentLogs(projectId: string, userId: string): Promise<GetLogsResponse> {
@@ -222,11 +214,7 @@ export class ProjectsService {
     const getLogsRequest: GetLogsRequest = {
       container_name: projectId,
     };
-    try {
-      return await this.pomegranateService.getLogs(getLogsRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Failed to get logs for deployment ${projectId}: ${e}`);
-    }
+    return await this.pomegranateService.getLogs(getLogsRequest);
   }
 
   async getStatistics(projectId: string, userId: string): Promise<GetStatisticsResponse> {
@@ -235,26 +223,17 @@ export class ProjectsService {
     const getStatisticsRequest: GetStatisticsRequest = {
       container_name: projectId,
     };
-    try {
-      return await this.pomegranateService.getStatistics(getStatisticsRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Failed to get the statistics for the project ${projectId}: ${e}`);
-    }
+    return await this.pomegranateService.getStatistics(getStatisticsRequest);
   }
 
   async getStatus(projectId: string[], userId: string): Promise<GetStatusResponse> {
     for (const id of projectId) {
       await this.userAndProjectCheck(id, userId);
     }
-
     const getStatusRequest: GetStatusRequest = {
       container_name: projectId,
     };
-    try {
-      return await this.pomegranateService.getStatus(getStatusRequest);
-    } catch (e) {
-      throw new InternalServerErrorException(`Error: ${e}`);
-    }
+    return await this.pomegranateService.getStatus(getStatusRequest);
   }
 
   async userAndProjectCheck(projectId: string, userId: string): Promise<Project> {

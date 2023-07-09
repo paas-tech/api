@@ -29,6 +29,9 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.deploy(request));
     } catch (error) {
+      if (error.code === 5) {
+        throw new HttpException('Image not found', 404);
+      }
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
@@ -37,6 +40,9 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.stopDeploy(request));
     } catch (error) {
+      if (error.code === 5) {
+        throw new HttpException('Deployment not found', 404);
+      }
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
@@ -45,6 +51,9 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.deleteImage(request));
     } catch (error) {
+      if (error.code === 5) {
+        throw new HttpException('Image not found', 404);
+      }
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
@@ -53,6 +62,9 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.getLogs(request));
     } catch (error) {
+      if (error.code === 5) {
+        throw new HttpException('Deployment not found', 404);
+      }
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
@@ -61,6 +73,9 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.getStatistics(request));
     } catch (error) {
+      if (error.code === 5) {
+        throw new HttpException('Deployment not found', 404);
+      }
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
@@ -69,6 +84,9 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.getStatus(request));
     } catch (error) {
+      if (error.code === 5) {
+        throw new HttpException('Deployment not found', 404);
+      }
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }
