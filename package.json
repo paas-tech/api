@@ -39,7 +39,7 @@
     "cookie-parser": "^1.4.6",
     "handlebars": "^4.7.7",
     "nodemailer": "^6.9.3",
-    "paastech-proto": "github:paastech-cloud/proto#pomegranate",
+    "paastech-proto": "github:paastech-cloud/proto",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
