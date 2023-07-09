@@ -11,6 +11,7 @@ import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { JwtEncodedUserData, RequestUser } from './types/jwt-user-data.type';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
@@ -51,20 +53,13 @@ export class AuthService {
     };
 
     const jwt = await this.jwtService.signAsync(payload);
-
-    response.cookie(AuthService.ACCESS_COOKIE_NAME, jwt, {
-      httpOnly: true,
-      maxAge: 6 * 60 * 60 * 1000 // 6 hours
-    })
+    this.setCookie(response, jwt);
 
     return {accessToken: jwt};
   }
 
   async logout(response: Response) {
-    response.cookie(AuthService.ACCESS_COOKIE_NAME, "", {
-      httpOnly: true,
-      maxAge: 30 * 1000 // expire very soon, the cookie is empty anyways so no need to keep it
-    })
+    this.setCookie(response);
   }
 
   async validateUser(credentials: LoginUserDto): Promise<RequestUser|null> {
@@ -115,6 +110,29 @@ export class AuthService {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Sets cookie to a given value, or invalidates it if no value is given
+   * @param response the Express Response
+   * @param value if not null, the JWT that should be put in the cookie
+   */
+  setCookie(response: Response, value: string = null) {
+    // defaults for cookie "invalidation"
+    let val = "";
+    let time = 30 * 1000; // expire very soon, the cookie is empty anyways so no need to keep it
+
+    if (value !== null) {
+      val = value;
+      time = 6 * 60 * 60 * 1000; // 6 hours
+    }
+
+    response.cookie(AuthService.ACCESS_COOKIE_NAME, val, {
+      httpOnly: true,
+      sameSite: true,
+      secure: !(this.configService.getOrThrow('APP_DEV_MODE') === 'true'),
+      maxAge: time
+    })
   }
 
 }
