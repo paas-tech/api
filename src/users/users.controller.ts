@@ -1,5 +1,5 @@
 import { SanitizedUser } from './types/sanitized-user.type';
-import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Controller, Delete, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -16,13 +16,14 @@ export class UsersController {
 
     // GET /users
     // This action returns a user's profile
-    @Get()
+    @Get('my')
     async getProfile(@GetUser() user: RequestUser): Promise<SanitizedUser> {
         return await this.usersService.findOne({ id: user.id });
     }
 
     // GET /users/:username
     // This action returns a #${username} user
+    @AdminOnly()
     @Get(':username')
     async findOne(@Param('username') username: string): Promise<SanitizedUser> {
         return await this.usersService.findOne({ username });
@@ -37,7 +38,7 @@ export class UsersController {
             await this.usersService.delete({ username });
         }
         catch (err) {
-            throw new HttpException('User deletion failed', HttpStatus.BAD_REQUEST, { cause: err });
+            throw new BadRequestException('User deletion failed');
         }
         return "User deleted successfully";
 

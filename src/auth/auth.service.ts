@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
 import { AccessToken } from './dto/responses/access-token.dto';
 import { UsersService } from 'src/users/users.service';
@@ -28,11 +28,11 @@ export class AuthService {
       return await this.usersService.create(createUserDto);
     }
     catch (err) {
+      // Handle violation of unique keys email and username and return clear error message
       if (err.code === 'P2002' && err.meta?.target?.length > 0) {
-        throw new HttpException(`Registration error - this ${err.meta.target[0]} is already used`, HttpStatus.BAD_REQUEST);
+        throw new BadRequestException(`Registration error - this ${err.meta.target[0]} is already used`);
       }
-      console.log(err);
-      throw new HttpException("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR, { cause: err });
+      throw new InternalServerErrorException("Something went wrong");
     }
   }
 
