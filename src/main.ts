@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { PrismaCatcherFilter } from './filters/prisma-catcher.filter';
+import { ResponseTransformInterceptor } from './interceptors/response-transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { abortOnError: false });
@@ -21,6 +22,9 @@ async function bootstrap() {
 
   // catch all prisma exceptions
   app.useGlobalFilters(new PrismaCatcherFilter());
+
+  // use global interceptor
+  app.useGlobalInterceptors(new ResponseTransformInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('PaaSTech API')
