@@ -15,6 +15,14 @@ export class UsersController {
     ) {}
 
     // GET /users
+    // This action returns all users
+    @AdminOnly()
+    @Get()
+    async findAll(): Promise<SanitizedUser[]> {
+        return await this.usersService.findAll();
+    }
+
+    // GET /users/my
     // This action returns a user's profile
     @Get('my')
     async getProfile(@GetUser() user: RequestUser): Promise<SanitizedUser> {
