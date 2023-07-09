@@ -5,12 +5,14 @@ import { AccessToken } from './dto/responses/access-token.dto';
 import { Public } from './decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
-import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { Response as EResponse } from 'express';
+import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 
 @ApiTags('auth')
+@ApiResponse({type: ApiStandardResponse})
 @Controller('auth')
 export class AuthController {
     constructor(

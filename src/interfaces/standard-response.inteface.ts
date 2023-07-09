@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export interface StandardResponse<T> {
     /** a brief status explaining the result of the query */
@@ -6,4 +7,15 @@ export interface StandardResponse<T> {
     message?: string;
     /** the content of the response, if any is sent back */
     content?: T;
+}
+
+export class ApiStandardResponse {
+    @ApiProperty()
+    status: string;
+
+    @ApiPropertyOptional()
+    message?: string;
+
+    @ApiPropertyOptional()
+    content?: any;
 }

@@ -4,11 +4,13 @@ import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
-import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 
 @ApiBearerAuth()
 @ApiCookieAuth()
 @ApiTags('ssh keys')
+@ApiResponse({type: ApiStandardResponse})
 @Controller('sshkeys')
 export class SshKeysController {
     constructor(

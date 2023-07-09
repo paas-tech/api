@@ -18,11 +18,13 @@ import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { PrismaService } from 'src/prisma.service';
 import { GetStatusDto } from './dto/get-status.dto';
 import { DeployDto } from './dto/deploy.dto';
-import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 
 @ApiCookieAuth()
 @ApiBearerAuth()
 @ApiTags('projects')
+@ApiResponse({type: ApiStandardResponse})
 @Controller('projects')
 export class ProjectsController {
   constructor(private projectsService: ProjectsService, private prisma: PrismaService) {}
