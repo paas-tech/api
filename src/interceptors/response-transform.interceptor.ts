@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { StandardResponse } from 'src/interfaces/standard-response.inteface';
+import { StandardResponseOutput } from 'src/types/standard-response.type';
 
 @Injectable()
 /**
@@ -12,8 +12,8 @@ import { StandardResponse } from 'src/interfaces/standard-response.inteface';
  * - object => `{status: "<your status or OK>", "message": "<your message if any>", content: "<all other properties>"}
  * - any other response => `{status: "OK", content: "<your response>"}`
  */
-export class ResponseTransformInterceptor<T> implements NestInterceptor<T, StandardResponse<T>> {
-  intercept(_context: ExecutionContext, next: CallHandler): Observable<StandardResponse<T>> {
+export class ResponseTransformInterceptor<T> implements NestInterceptor<T, StandardResponseOutput<T>> {
+  intercept(_context: ExecutionContext, next: CallHandler): Observable<StandardResponseOutput<T>> {
     return next.handle().pipe(map((data: T) => {
         // if no response
         if (data === null || data === undefined) {
@@ -34,7 +34,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<T, Stand
         else if (typeof data === 'object' && !Array.isArray(data)) {
             const { status, message, content, ...rest }: { [key: string]: any } = data;
             
-            const response: StandardResponse<T> = {
+            const response: StandardResponseOutput<T> = {
                 status: status ?? "OK", 
             };
 
