@@ -17,7 +17,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
 import { GetUser } from 'src/auth/decorators/user.decorator';
-import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
+import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { PrismaService } from 'src/prisma.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetStatusDto } from './dto/get-status.dto';
@@ -30,8 +30,8 @@ export class ProjectsController {
   // GET /projects
   // This action returns all of the authenticated user's projects
   @Get()
-  async findAll(@GetUser() user: UserDecoratorType) {
-    return this.projectsService.findAll(user.sub);
+  async findAll(@GetUser() user: RequestUser) {
+    return this.projectsService.findAll(user.id);
   }
 
   // GET /projects/:uuid
@@ -76,6 +76,12 @@ export class ProjectsController {
   async stop(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
     return this.projectsService.stopDeployment(uuid, user.sub);
   }
+  async delete(
+    @Param('uuid') uuid: string,
+    @GetUser() user: RequestUser,
+  ): Promise<SanitizedProject> {
+    // Delete the project from the database
+    const project = await this.projectsService.delete(uuid, user.id);
 
   // GET /projects/:uuid/logs
   // This gets logs for a deployment

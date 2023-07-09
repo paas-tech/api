@@ -11,6 +11,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { PomegranateService } from './projects/pomegranate.service';
+import { SshKeysModule } from './sshkeys/sshkeys.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { PomegranateService } from './projects/pomegranate.service';
     ProjectsModule,
     AuthModule,
     MailModule,
-    ProjectsModule,
+    SshKeysModule,
   ],
   controllers: [AppController],
   providers: [

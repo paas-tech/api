@@ -39,6 +39,14 @@ If you need to generate migrations after editing the `schema.prisma` file, you c
 $ npx prisma migrate dev --name "name of your migration here"
 ```
 
+Optionally, you may also seed the database.
+
+This will add two users with the password specified in your `.env` file. For more details, checkout `prisma/seed.ts`
+
+```sh
+$ npx prisma db seed
+```
+
 Mailhog (the mail development server) is reachable through `localhost:8025` on the web once the docker compose has been upped.
 
 ## Test
