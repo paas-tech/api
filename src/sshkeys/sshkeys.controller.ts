@@ -19,8 +19,8 @@ export class SshKeysController {
             return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
         }
         return {
-            "status": "OK",
-            "message": "Ssh key has successfully been created."
+            status: "created",
+            message: "SSH key has successfully been created."
         }
     }
 
@@ -32,8 +32,8 @@ export class SshKeysController {
             throw new HttpException("No ssh key with these specifications could be found.", HttpStatus.BAD_REQUEST)
         }
         return {
-            "status": "removed",
-            "message": "Ssh key has successfully been deleted."
+            status: "removed",
+            message: "SSH key has successfully been deleted."
         }
     }
 
@@ -43,8 +43,8 @@ export class SshKeysController {
     @Get('my')
     async getSshKeys(@GetUser() user: UserDecoratorType) {
         return {
-            "status": "OK",
-            "content": await this.sshkeysService.getSshKeysOfUser(user.sub)
+            status: "OK",
+            content: await this.sshkeysService.getSshKeysOfUser(user.sub)
         }
     }
 
@@ -55,8 +55,8 @@ export class SshKeysController {
     @Get()
     async getAllSshKeys() {
         return {
-            "status": "OK",
-            "content": await this.sshkeysService.getAllSshKeys()
+            status: "OK",
+            content: await this.sshkeysService.getAllSshKeys()
         }
     }
 }
