@@ -33,6 +33,8 @@ async function bootstrap() {
     .addTag('auth')
     .addTag('users')
     .addTag('projects')
+    .addTag('ssh keys')
+    .addCookieAuth("access")
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);

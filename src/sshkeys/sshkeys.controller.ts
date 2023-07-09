@@ -4,7 +4,11 @@ import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
+import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiCookieAuth()
+@ApiTags('ssh keys')
 @Controller('sshkeys')
 export class SshKeysController {
     constructor(

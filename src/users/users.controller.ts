@@ -2,11 +2,12 @@ import { SanitizedUser } from './types/sanitized-user.type';
 import { BadRequestException, Controller, Delete, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 
 @ApiBearerAuth()
+@ApiCookieAuth()
 @ApiTags('users')
 @Controller('users')
 export class UsersController {

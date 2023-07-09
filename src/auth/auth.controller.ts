@@ -5,7 +5,7 @@ import { AccessToken } from './dto/responses/access-token.dto';
 import { Public } from './decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { Response as EResponse } from 'express';
@@ -27,6 +27,8 @@ export class AuthController {
 
     @Post('logout')
     @HttpCode(200)
+    @ApiBearerAuth()
+    @ApiCookieAuth()
     async logout(@Response({passthrough: true}) response: EResponse) {
         return await this.authService.logout(response);
     }

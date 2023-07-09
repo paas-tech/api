@@ -18,8 +18,9 @@ import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { PrismaService } from 'src/prisma.service';
 import { GetStatusDto } from './dto/get-status.dto';
 import { DeployDto } from './dto/deploy.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiCookieAuth()
 @ApiBearerAuth()
 @ApiTags('projects')
 @Controller('projects')
