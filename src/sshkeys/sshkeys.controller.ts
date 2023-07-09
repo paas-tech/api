@@ -3,7 +3,7 @@ import { SshKeysService } from './sshkeys.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
 import { GetUser } from 'src/auth/decorators/user.decorator';
-import { UserDecoratorType } from 'src/auth/types/user-decorator.type';
+import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 
 @Controller('sshkeys')
 export class SshKeysController {
@@ -14,8 +14,8 @@ export class SshKeysController {
     // POST /sshkeys/my
     // This action adds a key ${setSshDto} to a user's keys
     @Post('my')
-    async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: UserDecoratorType) {
-        if (!await this.sshkeysService.createSshKey(user.sub, createSshDto)) {
+    async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: RequestUser) {
+        if (!await this.sshkeysService.createSshKey(user.id, createSshDto)) {
             return new HttpException("Unable to add this ssh key. Please verify the key and name.", HttpStatus.BAD_REQUEST);
         }
         return {
@@ -27,8 +27,8 @@ export class SshKeysController {
     // DELETE /sshkeys/:username
     // This action removes a key ${setSshDto} to a user's keys
     @Delete('my/:uuid')
-    async deleteSshKey(@Param('uuid', new ParseUUIDPipe()) uuidSshKey: string, @GetUser() user: UserDecoratorType) {
-        if(!await this.sshkeysService.removeSshKey(user.sub, uuidSshKey)) {
+    async deleteSshKey(@Param('uuid', new ParseUUIDPipe()) uuidSshKey: string, @GetUser() user: RequestUser) {
+        if(!await this.sshkeysService.removeSshKey(user.id, uuidSshKey)) {
             throw new HttpException("No ssh key with these specifications could be found.", HttpStatus.BAD_REQUEST)
         }
         return {
@@ -41,10 +41,10 @@ export class SshKeysController {
     // GET /sshkeys/my
     // This action gets all the ssh keys of the user
     @Get('my')
-    async getSshKeys(@GetUser() user: UserDecoratorType) {
+    async getSshKeys(@GetUser() user: RequestUser) {
         return {
             status: "OK",
-            content: await this.sshkeysService.getSshKeysOfUser(user.sub)
+            content: await this.sshkeysService.getSshKeysOfUser(user.id)
         }
     }
 

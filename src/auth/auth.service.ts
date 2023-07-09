@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
 import { AccessToken } from './dto/responses/access-token.dto';
 import { UsersService } from 'src/users/users.service';
@@ -24,21 +24,16 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
-    if (!await this.usersService.validateEmail(createUserDto.email)) {
-      throw new HttpException("Registration error - this email is already used", HttpStatus.BAD_REQUEST);
+    try {
+      return await this.usersService.create(createUserDto);
     }
-
-    if (!await this.usersService.validateUsername(createUserDto.username)) {
-      throw new HttpException("Registration error - this username is already used", HttpStatus.BAD_REQUEST);
+    catch (err) {
+      // Handle violation of unique keys email and username and return clear error message
+      if (err.code === 'P2002' && err.meta?.target?.length > 0) {
+        throw new BadRequestException(`Registration error - this ${err.meta.target[0]} is already used`);
+      }
+      throw new InternalServerErrorException("Something went wrong");
     }
-
-    let user = await this.usersService.create(createUserDto);
-    
-    if (!await this.mailService.sendUserConfirmation(user.email, user.emailNonce)) {
-      throw new HttpException("Email could not be sent", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    return this.usersService.sanitizeOutput(user);
   }
 
   // Sign user in by email and password

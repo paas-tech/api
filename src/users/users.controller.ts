@@ -1,9 +1,10 @@
 import { SanitizedUser } from './types/sanitized-user.type';
-import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Controller, Delete, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import { GetUser } from 'src/auth/decorators/user.decorator';
+import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -13,13 +14,26 @@ export class UsersController {
         private usersService: UsersService,
     ) {}
 
+    // GET /users
+    // This action returns all users
+    @AdminOnly()
+    @Get()
+    async findAll(): Promise<SanitizedUser[]> {
+        return await this.usersService.findAll();
+    }
+
+    // GET /users/my
+    // This action returns a user's profile
+    @Get('my')
+    async getProfile(@GetUser() user: RequestUser): Promise<SanitizedUser> {
+        return await this.usersService.findOne({ id: user.id });
+    }
+
     // GET /users/:username
     // This action returns a #${username} user
+    @AdminOnly()
     @Get(':username')
-    async findOne(@Param('username') username: string, @Req() req: Request): Promise<SanitizedUser> {
-        if ((req['user'] as unknown as {username:string|null})?.username !== username) {
-            throw new UnauthorizedException();
-        }
+    async findOne(@Param('username') username: string): Promise<SanitizedUser> {
         return await this.usersService.findOne({ username });
     }
 
@@ -32,7 +46,7 @@ export class UsersController {
             await this.usersService.delete({ username });
         }
         catch (err) {
-            throw new HttpException('User deletion failed', HttpStatus.BAD_REQUEST, { cause: err });
+            throw new BadRequestException('User deletion failed');
         }
         return "User deleted successfully";
 
