@@ -34,7 +34,7 @@ export class MailService {
         private readonly mailerService: MailerService,
         private readonly configService: ConfigService,
     ) {
-        this.hostname = `${this.configService.getOrThrow('APP_HOST')}:${this.configService.getOrThrow('APP_PORT')}`;
+        this.hostname = `${this.configService.getOrThrow('FRONTEND_HOST')}:${this.configService.getOrThrow('FRONTEND_PORT')}`;
     }
 
     async sendUserConfirmation(email: string, token: string): Promise<boolean> {

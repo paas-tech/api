@@ -7,9 +7,13 @@ import { PrismaCatcherFilter } from './filters/prisma-catcher.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { abortOnError: false });
+
+  // enable cors
   app.enableCors({
-    origin: '*'
+    origin: 'https://' + process.env.FRONTEND_HOST,
+    credentials: true
   });
+
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     transform: true,
