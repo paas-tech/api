@@ -20,6 +20,7 @@ export class SshKeysService {
   }
 
   async createSshKey(userId: string, sshKey: CreateSshKeyDto): Promise<SanitizedSshKey> {
+    console.log("user id: " + userId);
     return this.sanitizeOutput(await this.prisma.sshKey.create({
       data: {
         value: sshKey.value,
