@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { StandardResponseOutput } from 'src/types/standard-response.type';
+import { StandardResponseOutput, StandardResponseCandidate } from 'src/types/standard-response.type';
 
 @Injectable()
 /**
@@ -12,9 +12,9 @@ import { StandardResponseOutput } from 'src/types/standard-response.type';
  * - object => `{status: "<your status or OK>", "message": "<your message if any>", content: "<all other properties>"}
  * - any other response => `{status: "OK", content: "<your response>"}`
  */
-export class ResponseTransformInterceptor<T> implements NestInterceptor<T, StandardResponseOutput<T>> {
+export class ResponseTransformInterceptor<T> implements NestInterceptor<StandardResponseCandidate<T>, StandardResponseOutput<T>> {
   intercept(_context: ExecutionContext, next: CallHandler): Observable<StandardResponseOutput<T>> {
-    return next.handle().pipe(map((data: T) => {
+    return next.handle().pipe(map((data: StandardResponseCandidate<T>) => {
         // if no response
         if (data === null || data === undefined) {
             return {
@@ -57,7 +57,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<T, Stand
         else {
             return {
                 status: "OK",
-                content: data,
+                content: data as T,
             };
         }
     }));
