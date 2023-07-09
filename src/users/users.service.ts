@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { SetSshDto } from 'src/users/dto/set-ssh.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
-import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -117,8 +116,5 @@ export class UsersService {
     return await this.prisma.user.delete({ where });
   }
 
-  setSshKey(sshKey: SetSshDto): string {
-    // TODO: implement the public key handling
-    return sshKey.publicKey;
-  }
+
 }
