@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req, Response } from '@nestjs/common';
+import { BadRequestException, Body, Controller, HttpCode, InternalServerErrorException, Param, ParseUUIDPipe, Post, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AccessToken } from './dto/responses/access-token.dto';
@@ -45,7 +45,7 @@ export class AuthController {
     @Post('confirm/:token')
     async confirmEmail(@Param('token', new ParseUUIDPipe()) token: string): Promise<string> {
         if (!await this.authService.confirmEmail(token)) {
-            throw new HttpException("No user with these specifications has been found.", HttpStatus.BAD_REQUEST)
+            throw new BadRequestException("No user with these specifications has been found.")
         }
         return "Email successfully verified";
 
@@ -70,7 +70,7 @@ export class AuthController {
     @Post('password/reset/:token')
     async resetPassword(@Param('token', new ParseUUIDPipe()) token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
         if (!await this.authService.passwordReset(token, passwordResetDto)) {
-            throw new HttpException("We were not able to reset your password.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerErrorException("We were not able to reset your password.");
         }
         return "Your password has successfully been updated.";
 

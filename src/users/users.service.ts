@@ -106,6 +106,15 @@ export class UsersService {
     }
   }
 
+  async findAll(): Promise<SanitizedUser[] | []> {
+    const users = await this.prisma.user.findMany();
+    const sanitizedUsers = [];
+    for (let user of users) {
+      sanitizedUsers.push(this.sanitizeOutput(user));
+    }
+    return sanitizedUsers;
+  }
+
   async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User|null> {
     return await this.prisma.user.findUnique({
       where: userUniqueInput
