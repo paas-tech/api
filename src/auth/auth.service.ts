@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from 'src/auth/dto/login-user.dto';
-import { AccessToken } from './interfaces/accessToken';
+import { AccessToken } from './dto/responses/access-token.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -9,9 +9,14 @@ import { SanitizedUser } from 'src/users/types/sanitized-user.type';
 import { MailService } from 'src/mail/mail.service';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
+import { JwtEncodedUserData, RequestUser } from './types/jwt-user-data.type';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
+
+  public static ACCESS_COOKIE_NAME = "access"
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
@@ -37,23 +42,37 @@ export class AuthService {
   }
 
   // Sign user in by email and password
-  async login(credentials: LoginUserDto): Promise<AccessToken> {
+  async login(response: Response, credentials: LoginUserDto): Promise<AccessToken> {
     const user = await this.validateUser(credentials);
     if(!user) {
       throw new UnauthorizedException();
     }
 
     // Add a username in the JWT token
-    const payload = {
+    const payload: JwtEncodedUserData = {
       sub: user['id'],
       username: user['username'],
       isAdmin: user['isAdmin']
     };
 
-    return {accessToken: await this.jwtService.signAsync(payload)};
+    const jwt = await this.jwtService.signAsync(payload);
+
+    response.cookie(AuthService.ACCESS_COOKIE_NAME, jwt, {
+      httpOnly: true,
+      maxAge: 6 * 60 * 60 * 1000 // 6 hours
+    })
+
+    return {accessToken: jwt};
   }
 
-  async validateUser(credentials: LoginUserDto): Promise<SanitizedUser> {
+  async logout(response: Response) {
+    response.cookie(AuthService.ACCESS_COOKIE_NAME, "", {
+      httpOnly: true,
+      maxAge: 30 * 1000 // expire very soon, the cookie is empty anyways so no need to keep it
+    })
+  }
+
+  async validateUser(credentials: LoginUserDto): Promise<RequestUser|null> {
     const user = await this.usersService.findOneUnsanitized({email: credentials.email});
     if (user && !user.emailNonce && await bcrypt.compare(credentials.password, user.password)) {
       return {

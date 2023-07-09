@@ -1,13 +1,14 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, ParseUUIDPipe, Post, Query, Req, Response } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { AccessToken } from './interfaces/accessToken';
+import { AccessToken } from './dto/responses/access-token.dto';
 import { Public } from './decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
 import { ApiTags } from '@nestjs/swagger';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
+import { Response as EResponse } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -20,8 +21,14 @@ export class AuthController {
     // This action returns an access token
     @Public()
     @Post('login')
-    async login(@Body() loginUserDto: LoginUserDto): Promise<AccessToken> {
-        return this.authService.login(loginUserDto);
+    async login(@Response({passthrough: true}) response: EResponse, @Body() loginUserDto: LoginUserDto): Promise<AccessToken> {
+        return this.authService.login(response, loginUserDto);
+    }
+
+    @Post('logout')
+    @HttpCode(200)
+    async logout(@Response({passthrough: true}) response: EResponse) {
+        return await this.authService.logout(response);
     }
 
     // POST /auth/register
@@ -36,7 +43,7 @@ export class AuthController {
     // This path lets the user confirm his email
     @Public()
     @Post('confirm/:token')
-    async confirmEmail(@Param('token') token: string): Promise<string> {
+    async confirmEmail(@Param('token', new ParseUUIDPipe()) token: string): Promise<string> {
         if (!await this.authService.confirmEmail(token)) {
             throw new HttpException("No user with these specifications has been found.", HttpStatus.BAD_REQUEST)
         }
@@ -61,7 +68,7 @@ export class AuthController {
     // This path lets the user reset his password
     @Public()
     @Post('password/reset/:token')
-    async resetPassword(@Param('token') token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
+    async resetPassword(@Param('token', new ParseUUIDPipe()) token: string, @Body() passwordResetDto: PasswordResetDto): Promise<string> {
         if (!await this.authService.passwordReset(token, passwordResetDto)) {
             throw new HttpException("We were not able to reset your password.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
