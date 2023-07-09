@@ -25,7 +25,7 @@ export class AuthService {
 
   async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
     try {
-      return await this.usersService.create(createUserDto);
+      return this.usersService.sanitizeOutput(await this.usersService.create(createUserDto));
     }
     catch (err) {
       // Handle violation of unique keys email and username and return clear error message
