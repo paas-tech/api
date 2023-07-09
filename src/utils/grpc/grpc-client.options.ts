@@ -9,8 +9,8 @@ const gitPort = process.env.GIT_PORT;
 const pomegranateHost = process.env.POMEGRANATE_HOST;
 const pomegranatePort = process.env.POMEGRANATE_PORT;
 
-export const grpcClientOptions: ClientOptions[] = [
-  {
+export const grpcClientOptions: { [key: string]: ClientOptions } = {
+  git: {
     transport: Transport.GRPC,
     options: {
       url: `${gitHost}:${gitPort}`,
@@ -27,12 +27,12 @@ export const grpcClientOptions: ClientOptions[] = [
       },
     },
   },
-  {
+  pomegranate: {
     transport: Transport.GRPC,
     options: {
-      url: `${pomegranateHost}:${pomegranatePort}`, // Replace with your other service's host and port
-      package: ['pomegranate'], // Replace with the package name of your other service
-      protoPath: [path.join(__dirname, '../../', protoDir, 'pomegranate.proto')], // Replace with the proto file path of your other service
+      url: `${pomegranateHost}:${pomegranatePort}`,
+      package: ['pomegranate'],
+      protoPath: [path.join(__dirname, '../../', protoDir, 'pomegranate.proto')],
       loader: {
         keepCase: true,
         longs: Number,
@@ -44,4 +44,4 @@ export const grpcClientOptions: ClientOptions[] = [
       },
     },
   },
-];
+};

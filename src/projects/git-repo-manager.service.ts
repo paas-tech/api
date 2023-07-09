@@ -6,7 +6,7 @@ import { grpcClientOptions } from 'src/utils/grpc/grpc-client.options';
 
 @Injectable()
 export class GitRepoManagerService implements OnModuleInit {
-  @Client(grpcClientOptions[0])
+  @Client(grpcClientOptions['git'])
   private readonly client: ClientGrpc;
   private gitRepoManager: GitRepoManagerClient;
 

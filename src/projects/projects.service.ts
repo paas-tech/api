@@ -7,6 +7,7 @@ import { GitRepoManagerService } from './git-repo-manager.service';
 import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { createRepositoryRequest } from 'src/utils/grpc/grpc-request-helpers';
 import {
+  ContainerStatus,
   DeleteImageRequest,
   DeployRequest,
   EmptyResponse,
@@ -126,26 +127,25 @@ export class ProjectsService {
         throw new InternalServerErrorException(`Failed to delete project ${projectId}`);
       });
 
-      // Send the grpc request to delete the repository
-      const repositoryRequest: RepositoryRequest = createRepositoryRequest(projectId);
+      // TODO:
+      // Check if the error is a 404 meaning that the image does not exist and we can continue
       try {
-        await this.gitRepoManagerService.delete(repositoryRequest);
-      } catch (e) {
-        throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
-      }
-
-      // TODO: delete Images
-      const deleteImageRequest: DeleteImageRequest = {
-        container_name: projectId,
-        image_name: projectId,
-        image_tag: 'latest',
-      };
-      try {
+        const deleteImageRequest: DeleteImageRequest = {
+          container_name: projectId,
+          image_name: projectId,
+          image_tag: 'latest',
+        };
         await this.pomegranateService.deleteImage(deleteImageRequest);
       } catch (e) {
         throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
       }
-
+      try {
+        // Send the grpc request to delete the repository
+        const repositoryRequest: RepositoryRequest = createRepositoryRequest(projectId);
+        await this.gitRepoManagerService.delete(repositoryRequest);
+      } catch (e) {
+        throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
+      }
       return this.sanitizeOutput(project);
     });
   }

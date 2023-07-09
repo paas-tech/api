@@ -18,7 +18,7 @@ import { grpcClientOptions } from 'src/utils/grpc/grpc-client.options';
 
 @Injectable()
 export class PomegranateService implements OnModuleInit {
-  @Client(grpcClientOptions[1])
+  @Client(grpcClientOptions['pomegranate'])
   private readonly client: ClientGrpc;
   private pomegranate: PomegranateClient;
   onModuleInit(): void {
@@ -29,7 +29,6 @@ export class PomegranateService implements OnModuleInit {
     try {
       return await firstValueFrom(this.pomegranate.deploy(request));
     } catch (error) {
-      // TODO
       throw new HttpException(`Internal server error: ${error}`, 500);
     }
   }

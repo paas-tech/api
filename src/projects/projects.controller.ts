@@ -58,11 +58,10 @@ export class ProjectsController {
   @Delete(':uuid')
   @UseGuards(JwtAuthGuard)
   async delete(@Param('uuid') uuid: string, @GetUser() user: UserDecoratorType): Promise<SanitizedProject> {
-    // Delete the project from the database
     return this.projectsService.delete(uuid, user.sub);
   }
 
-  // POST /projects/:uuid/start
+  // Patch /projects/:uuid/start
   // This starts a deployment for a project
   @Patch(':uuid/deploy')
   @UseGuards(JwtAuthGuard)
@@ -86,7 +85,7 @@ export class ProjectsController {
     return this.projectsService.getDeploymentLogs(uuid, user.sub);
   }
 
-  // POST /projects/:uuid/statistics
+  // GET /projects/:uuid/statistics
   // This gets statistics for a deployment
   @Get(':uuid/statistics')
   @UseGuards(JwtAuthGuard)
