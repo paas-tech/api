@@ -8,5 +8,5 @@ export class ApiStandardResponse {
   message?: string;
 
   @ApiPropertyOptional()
-  content?: any;
+  content?: unknown;
 }

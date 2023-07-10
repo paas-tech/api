@@ -33,6 +33,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<Standard
 
         // if the data is a real object, this could be a well-crafted response
         else if (typeof data === 'object' && !Array.isArray(data)) {
+          // eslint-disable-next-line  @typescript-eslint/no-explicit-any
           const { status, message, content, ...rest }: { [key: string]: any } = data;
 
           const response: StandardResponseOutput<T> = {
