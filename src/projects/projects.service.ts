@@ -7,7 +7,6 @@ import { GitRepoManagerService } from './git-repo-manager.service';
 import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { createRepositoryRequest } from 'src/utils/grpc/grpc-request-helpers';
 import {
-  ContainerStatus,
   DeleteImageRequest,
   DeployRequest,
   EmptyResponse,
@@ -20,15 +19,10 @@ import {
   StopDeployRequest,
 } from 'paastech-proto/types/proto/pomegranate';
 import { PomegranateService } from './pomegranate.service';
-import { env } from 'process';
 
 @Injectable()
 export class ProjectsService {
-<<<<<<< HEAD
   constructor(private prisma: PrismaService, private gitRepoManagerService: GitRepoManagerService, private pomegranateService: PomegranateService) {}
-=======
-  constructor(private prisma: PrismaService, private gitRepoManagerService: GitRepoManagerService) {}
->>>>>>> 8bfa284 (lint: finally apply format on all files)
 
   private sanitizeOutput(project: Project): SanitizedProject {
     return exclude(project, ['userId']);
@@ -49,11 +43,7 @@ export class ProjectsService {
         },
       });
 
-<<<<<<< HEAD
       const repositoryRequest: RepositoryRequest = createRepositoryRequest(createdProject.id);
-=======
-      const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(createdProject.id);
->>>>>>> 8bfa284 (lint: finally apply format on all files)
 
       try {
         await this.gitRepoManagerService.create(repositoryRequest);
@@ -127,36 +117,14 @@ export class ProjectsService {
   }
 
   async delete(projectId: string, userId: string): Promise<SanitizedProject> {
-<<<<<<< HEAD
     const project = await this.userAndProjectCheck(projectId, userId);
 
     return await this.prisma.$transaction(async (tx) => {
-=======
-    // Retrieve the project before deleting it
-    const project = await this.prisma.project.findFirstOrThrow({ where: { id: projectId } }).catch(() => {
-      throw new NotFoundException(`Project with uuid ${projectId} not found`);
-    });
-
-    // Check if user exists
-    const user = await this.prisma.user.findFirstOrThrow({ where: { id: userId } }).catch(() => {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    });
-
-    return await this.prisma.$transaction(async (tx) => {
-      // if not authorized to delete the project (not owner of project)
-      if (!user.isAdmin && userId !== project.userId) throw new UnauthorizedException();
-
->>>>>>> 8bfa284 (lint: finally apply format on all files)
       // delete the project
       await tx.project.delete({ where: { id: projectId } }).catch(() => {
         throw new InternalServerErrorException(`Failed to delete project ${projectId}`);
       });
 
-<<<<<<< HEAD
-=======
-      // Send the grpc request to delete the repository
-      const repositoryRequest: RepositoryRequest = this.createRepositoryRequest(projectId);
->>>>>>> 8bfa284 (lint: finally apply format on all files)
       try {
         const deleteImageRequest: DeleteImageRequest = {
           container_name: projectId,
@@ -165,14 +133,10 @@ export class ProjectsService {
         };
         await this.pomegranateService.deleteImage(deleteImageRequest);
       } catch (e) {
-<<<<<<< HEAD
         // If the image does not exist, we do not throw an error
         if (e.status !== 404) {
           throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
         }
-=======
-        throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
->>>>>>> 8bfa284 (lint: finally apply format on all files)
       }
       // Send the grpc request to delete the repository
       const repositoryRequest: RepositoryRequest = createRepositoryRequest(projectId);
