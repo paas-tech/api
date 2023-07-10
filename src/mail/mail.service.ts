@@ -34,7 +34,7 @@ export class MailService {
   }
 
   async sendUserConfirmation(email: string, token: string): Promise<boolean> {
-    const url = `${this.hostname}/email-verification/${token}`;
+    const url = `${this.hostname}/#/email-verification/${token}`;
     const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
 
     return this.mailerService
@@ -60,7 +60,7 @@ export class MailService {
   }
 
   async sendPasswordReset(email: string, token: string) {
-    const url = `${this.hostname}/password-reset/${token}`;
+    const url = `${this.hostname}/#/password-reset/${token}`;
     const template = compile(PASSWORD_RESET_TEMPLATE);
 
     await this.mailerService.sendMail({
