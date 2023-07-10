@@ -21,16 +21,10 @@ const prisma = new PrismaClient();
  */
 async function main(): Promise<void> {
   // check if variables are set
-  const vars = [
-    process.env.DEV_USER_PASSWORD,
-    process.env.DEV_USER_A_PUBLIC_KEY,
-    process.env.DEV_USER_B_PUBLIC_KEY,
-  ];
+  const vars = [process.env.DEV_USER_PASSWORD, process.env.DEV_USER_A_PUBLIC_KEY, process.env.DEV_USER_B_PUBLIC_KEY];
 
   if (vars.some((v) => v === undefined)) {
-    throw new Error(
-      'Please set all the required variables in the .env file, refer to the .env.example file',
-    );
+    throw new Error('Please set all the required variables in the .env file, refer to the .env.example file');
   }
 
   const hash = await bcrypt.hash(process.env.DEV_USER_PASSWORD as string, 10);
