@@ -6,6 +6,7 @@ import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swag
 import { GetUser } from 'src/auth/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
+import { CompliantContentResponse, MessageResponse } from 'src/types/standard-response.type';
 
 @ApiBearerAuth()
 @ApiCookieAuth()
@@ -19,14 +20,14 @@ export class UsersController {
   // This action returns all users
   @AdminOnly()
   @Get()
-  async findAll(): Promise<SanitizedUser[]> {
+  async findAll(): Promise<CompliantContentResponse<SanitizedUser[]>> {
     return await this.usersService.findAll();
   }
 
   // GET /users/my
   // This action returns a user's profile
   @Get('my')
-  async getProfile(@GetUser() user: RequestUser): Promise<SanitizedUser> {
+  async getProfile(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedUser>> {
     return await this.usersService.findOne({ id: user.id });
   }
 
@@ -34,7 +35,7 @@ export class UsersController {
   // This action returns a #${username} user
   @AdminOnly()
   @Get(':username')
-  async findOne(@Param('username') username: string): Promise<SanitizedUser> {
+  async findOne(@Param('username') username: string): Promise<CompliantContentResponse<SanitizedUser>> {
     return await this.usersService.findOne({ username });
   }
 
@@ -42,7 +43,7 @@ export class UsersController {
   // This action deletes a #${username} user
   @AdminOnly()
   @Delete(':username')
-  async delete(@Param('username') username: string): Promise<string> {
+  async delete(@Param('username') username: string): Promise<MessageResponse> {
     try {
       await this.usersService.delete({ username });
     } catch (err) {

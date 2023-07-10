@@ -6,6 +6,8 @@ import { GetUser } from 'src/auth/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
+import { CompliantContentResponse, MessageResponse } from 'src/types/standard-response.type';
+import { SanitizedSshKey } from './types/sanitized-ssh-key';
 
 @ApiBearerAuth()
 @ApiCookieAuth()
@@ -18,9 +20,9 @@ export class SshKeysController {
   // POST /sshkeys/my
   // This action adds a key ${setSshDto} to a user's keys
   @Post('my')
-  async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: RequestUser) {
+  async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: RequestUser): Promise<MessageResponse> {
     if (!(await this.sshkeysService.createSshKey(user.id, createSshDto))) {
-      return new HttpException('Unable to add this ssh key. Please verify the key and name.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Unable to add this ssh key. Please verify the key and name.', HttpStatus.BAD_REQUEST);
     }
     return {
       status: 'created',
@@ -31,7 +33,7 @@ export class SshKeysController {
   // DELETE /sshkeys/:username
   // This action removes a key ${setSshDto} to a user's keys
   @Delete('my/:uuid')
-  async deleteSshKey(@Param('uuid', new ParseUUIDPipe()) uuidSshKey: string, @GetUser() user: RequestUser) {
+  async deleteSshKey(@Param('uuid', new ParseUUIDPipe()) uuidSshKey: string, @GetUser() user: RequestUser): Promise<MessageResponse> {
     if (!(await this.sshkeysService.removeSshKey(user.id, uuidSshKey))) {
       throw new HttpException('No ssh key with these specifications could be found.', HttpStatus.BAD_REQUEST);
     }
@@ -44,21 +46,15 @@ export class SshKeysController {
   // GET /sshkeys/my
   // This action gets all the ssh keys of the user
   @Get('my')
-  async getSshKeys(@GetUser() user: RequestUser) {
-    return {
-      status: 'OK',
-      content: await this.sshkeysService.getSshKeysOfUser(user.id),
-    };
+  async getSshKeys(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedSshKey[]>> {
+    return await this.sshkeysService.getSshKeysOfUser(user.id);
   }
 
   // GET /sshkeys/
   // This action gets all ssh keys
   @AdminOnly()
   @Get()
-  async getAllSshKeys() {
-    return {
-      status: 'OK',
-      content: await this.sshkeysService.getAllSshKeys(),
-    };
+  async getAllSshKeys(): Promise<CompliantContentResponse<SanitizedSshKey[]>> {
+    return await this.sshkeysService.getAllSshKeys();
   }
 }

@@ -8,7 +8,7 @@ export type VoidResponse = undefined | null | void;
 /**
  * A simple message response featuring only a string of content
  */
-export type MessageResponse = string;
+export type MessageResponse = string | StandardResponseOutput<undefined>;
 
 /**
  * This type indicates a compliant response with a certain content type.
@@ -22,7 +22,7 @@ export type StandardResponseOutput<T> = {
   /** a message if the API needs to pass text onto the consumer */
   message?: MessageResponse;
   /** the content of the response, if any is sent back */
-  content?: CompliantContentResponse<T>;
+  content?: T;
 };
 
 // composite types
