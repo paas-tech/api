@@ -6,7 +6,7 @@ import { grpcClientOptions } from 'src/utils/grpc/grpc-client.options';
 
 @Injectable()
 export class GitRepoManagerService implements OnModuleInit {
-  @Client(grpcClientOptions)
+  @Client(grpcClientOptions['git'])
   private readonly client: ClientGrpc;
   private gitRepoManager: GitRepoManagerClient;
 
@@ -16,7 +16,6 @@ export class GitRepoManagerService implements OnModuleInit {
 
   async create(request: RepositoryRequest): Promise<RepositoryResponse> {
     try {
-      console.log(request);
       return await firstValueFrom(this.gitRepoManager.createRepository(request));
     } catch (error) {
       if (error.code === 6) {

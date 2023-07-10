@@ -40,25 +40,13 @@ model SshKey {
 }
 
 model Project {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String       @db.VarChar(40)
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime?    @updatedAt @map("updated_at")
-  user        User         @relation(fields: [userId], references: [id])
-  userId      String       @map("user_id") @db.Uuid
-  deployments Deployment[]
-
-  @@map("projects")
-}
-
-model Deployment {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String    @db.VarChar(40)
-  config    Json
+  config    Json      @default("{}")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
-  project   Project   @relation(fields: [projectId], references: [id])
-  projectId String    @map("project_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @map("user_id") @db.Uuid
 
-  @@map("deployments")
+  @@map("projects")
 }
