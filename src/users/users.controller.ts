@@ -1,9 +1,9 @@
 import { SanitizedUser } from './types/sanitized-user.type';
 import { BadRequestException, Controller, Delete, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
+import { AdminOnly } from 'src/decorators/adminonly.decorator';
 import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GetUser } from 'src/auth/decorators/user.decorator';
+import { GetUser } from 'src/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 import { CompliantContentResponse, MessageResponse } from 'src/types/standard-response.type';

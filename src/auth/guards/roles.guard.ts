@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ADMIN_KEY } from '../decorators/adminonly.decorator';
+import { ADMIN_KEY } from '../../decorators/adminonly.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {

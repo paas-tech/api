@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
-import { GetUser } from 'src/auth/decorators/user.decorator';
+import { GetUser } from 'src/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { GetStatusDto } from './dto/get-status.dto';
 import { DeployDto } from './dto/deploy.dto';
