@@ -11,8 +11,8 @@ async function bootstrap() {
 
   // enable cors
   app.enableCors({
-    origin: 'https://' + process.env.FRONTEND_HOST,
-    credentials: true
+    origin: process.env.APP_DEV_MODE ? 'http' : 'https' + '://' + process.env.FRONTEND_HOST,
+    credentials: true,
   });
 
   app.useGlobalPipes(new ValidationPipe({
