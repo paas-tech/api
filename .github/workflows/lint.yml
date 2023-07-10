@@ -28,7 +28,7 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
-          autofix: false
+          auto_fix: false
           eslint: true
           eslint_extensions: "js,ts"
           prettier: true
