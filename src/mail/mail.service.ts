@@ -30,7 +30,7 @@ export class MailService {
   private hostname: string;
 
   constructor(private readonly mailerService: MailerService, private readonly configService: ConfigService) {
-    this.hostname = `${this.configService.getOrThrow('FRONTEND_HOST')}:${this.configService.getOrThrow('FRONTEND_PORT')}`;
+    this.hostname = this.configService.getOrThrow('FRONTEND_ORIGIN');
   }
 
   async sendUserConfirmation(email: string, token: string): Promise<boolean> {
