@@ -29,9 +29,9 @@ export class AuthService {
     try {
       const user = await this.usersService.create(createUserDto);
       return {
-        status: "created",
-        message: "Your account has been successfully created! Please verify your email to log in.",
-        ...this.usersService.sanitizeOutput(user)
+        status: 'created',
+        message: 'Your account has been successfully created! Please verify your email to log in.',
+        ...this.usersService.sanitizeOutput(user),
       };
     } catch (err) {
       // Handle violation of unique keys email and username and return clear error message
@@ -47,9 +47,9 @@ export class AuthService {
     const user = await this.validateUser(credentials);
     if (!user) {
       throw new UnauthorizedException({
-        status: "refused",
-        message: "You need to verify your email to be able to log in."
-      } as StandardResponseOutput<{}>);
+        status: 'refused',
+        message: 'You need to verify your email to be able to log in.',
+      } as StandardResponseOutput<Record<string, never>>);
     }
 
     // Add a username in the JWT token

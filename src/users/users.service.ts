@@ -37,11 +37,11 @@ export class UsersService {
 
       if (!emailSent) {
         throw new ServiceUnavailableException({
-          status: "aborted",
-          message: "An error occured during email sending and the registration was thus cancelled. Please retry later."
-        } as StandardResponseOutput<{}>)
+          status: 'aborted',
+          message: 'An error occured during email sending and the registration was thus cancelled. Please retry later.',
+        } as StandardResponseOutput<Record<string, never>>);
       }
-      
+
       return created;
     });
   }

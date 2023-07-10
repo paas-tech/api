@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { CompliantContentResponse, StandardResponseOutput } from './types/standard-response.type';
 import { Public } from './decorators/public.decorator';
 
-type HealthReturnType = {service: string, database: string};
+type HealthReturnType = { service: string; database: string };
 
 @Controller()
 export class AppController {
@@ -16,10 +16,10 @@ export class AppController {
   async getHealth(): Promise<CompliantContentResponse<HealthReturnType>> {
     if (await this.appService.getHealth()) {
       return {
-        status: "healthy",
-        message: "All systems online",
-        service: "OK",
-        database: "OK"
+        status: 'healthy',
+        message: 'All systems online',
+        service: 'OK',
+        database: 'OK',
       };
     } else {
       /**
@@ -28,12 +28,12 @@ export class AppController {
        * that the response is compliant with the mapped responses candidates.
        */
       const response: StandardResponseOutput<HealthReturnType> = {
-        status: "unhealthy",
-        message: "Degraded mode",
+        status: 'unhealthy',
+        message: 'Degraded mode',
         content: {
-          service: "OK",
-          database: "KO"
-        }
+          service: 'OK',
+          database: 'KO',
+        },
       };
       throw new ServiceUnavailableException(response);
     }
