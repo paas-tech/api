@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
@@ -6,10 +6,12 @@ import { SanitizedUser } from './types/sanitized-user.type';
 import { exclude } from 'src/utils/prisma-exclude';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/mail/mail.service';
+import { StandardResponseOutput } from 'src/types/standard-response.type';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly mailService: MailService) {}
 
   public sanitizeOutput(user: User): SanitizedUser {
     return exclude(user, ['id', 'emailNonce', 'passwordNonce', 'password', 'createdAt', 'updatedAt']);
@@ -20,13 +22,27 @@ export class UsersService {
   }
 
   async create(user: CreateUserDto): Promise<User> {
-    return await this.prisma.user.create({
-      data: {
-        username: user.username,
-        email: user.email,
-        password: await this.passwd_encrypt(user.password),
-        isAdmin: false,
-      },
+    return await this.prisma.$transaction(async (tx) => {
+      // add the user
+      const created = await tx.user.create({
+        data: {
+          username: user.username,
+          email: user.email,
+          password: await this.passwd_encrypt(user.password),
+          isAdmin: false,
+        },
+      });
+
+      const emailSent = await this.mailService.sendUserConfirmation(created.email, created.emailNonce);
+
+      if (!emailSent) {
+        throw new ServiceUnavailableException({
+          status: "aborted",
+          message: "An error occured during email sending and the registration was thus cancelled. Please retry later."
+        } as StandardResponseOutput<{}>)
+      }
+      
+      return created;
     });
   }
 

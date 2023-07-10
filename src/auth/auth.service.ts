@@ -12,6 +12,7 @@ import { PasswordResetDto } from './dto/password-reset.dto';
 import { JwtEncodedUserData, RequestUser } from './types/jwt-user-data.type';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { CompliantContentResponse, StandardResponseOutput } from 'src/types/standard-response.type';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +25,14 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
+  async register(createUserDto: CreateUserDto): Promise<CompliantContentResponse<SanitizedUser>> {
     try {
-      return this.usersService.sanitizeOutput(await this.usersService.create(createUserDto));
+      const user = await this.usersService.create(createUserDto);
+      return {
+        status: "created",
+        message: "Your account has been successfully created! Please verify your email to log in.",
+        ...this.usersService.sanitizeOutput(user)
+      };
     } catch (err) {
       // Handle violation of unique keys email and username and return clear error message
       if (err.code === 'P2002' && err.meta?.target?.length > 0) {
@@ -40,7 +46,10 @@ export class AuthService {
   async login(response: Response, credentials: LoginUserDto): Promise<AccessToken> {
     const user = await this.validateUser(credentials);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException({
+        status: "refused",
+        message: "You need to verify your email to be able to log in."
+      } as StandardResponseOutput<{}>);
     }
 
     // Add a username in the JWT token
