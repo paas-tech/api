@@ -12,7 +12,7 @@ const EMAIL_CONFIRMATION_TEMPLATE = `<h2>Welcome to PaasTech!</h2>
 <p>If you have trouble opening the link, you can copy the following URL into your browser: </p>
 <p>{{ url }}</p>
 
-<p>If you did not request this email you can safely ignore it.</p>`;
+<p>If you did not request this email, you can safely ignore it.</p>`;
 
 const PASSWORD_RESET_TEMPLATE = `<h2>Password reset</h2>
 <p>Please click the link below to reset your password:</p>
@@ -23,7 +23,7 @@ const PASSWORD_RESET_TEMPLATE = `<h2>Password reset</h2>
 <p>If you have trouble opening the link, you can copy the following URL into your browser: </p>
 <p>{{ url }}</p>
 
-<p>If you did not request this email please contact us immediatly.</p>`;
+<p>If you did not request this email, please contact us immediately.</p>`;
 
 @Injectable()
 export class MailService {
