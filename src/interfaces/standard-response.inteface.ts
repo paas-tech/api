@@ -1,12 +1,12 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ApiStandardResponse {
-    @ApiProperty()
-    status: string;
+  @ApiProperty()
+  status: string;
 
-    @ApiPropertyOptional()
-    message?: string;
+  @ApiPropertyOptional()
+  message?: string;
 
-    @ApiPropertyOptional()
-    content?: any;
+  @ApiPropertyOptional()
+  content?: any;
 }

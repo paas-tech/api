@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   public sanitizeOutput(user: User): SanitizedUser {
     return exclude(user, ['id', 'emailNonce', 'passwordNonce', 'password', 'createdAt', 'updatedAt']);
@@ -25,14 +25,14 @@ export class UsersService {
         username: user.username,
         email: user.email,
         password: await this.passwd_encrypt(user.password),
-        isAdmin: false
-      }
+        isAdmin: false,
+      },
     });
   }
 
   async validateEmail(email: string): Promise<boolean> {
     // Check that email address doesn't already exist in the db
-    return !await this.findOne({ email });
+    return !(await this.findOne({ email }));
   }
 
   async validateEmailNonce(email_nonce: string): Promise<boolean> {
@@ -42,61 +42,57 @@ export class UsersService {
           emailNonce: email_nonce,
         },
         data: {
-          emailNonce: null
-        }
-      })
+          emailNonce: null,
+        },
+      });
       return true;
     } catch (err) {
       return false;
     }
-
   }
-
 
   async updatePassword(id: string, password: string): Promise<boolean> {
     try {
       await this.prisma.user.update({
         where: {
-          id: id
+          id: id,
         },
         data: {
           passwordNonce: null,
-          password: await this.passwd_encrypt(password)
-        }
-      })
+          password: await this.passwd_encrypt(password),
+        },
+      });
       return true;
     } catch (err) {
       return false;
     }
-
   }
 
   async regeneratePasswordNonce(id: string): Promise<string> {
     try {
-      let passwordNonce = uuidv4()
+      const passwordNonce = uuidv4();
       await this.prisma.user.update({
         where: {
           id: id,
         },
         data: {
-          passwordNonce: passwordNonce
-        }
-      })
+          passwordNonce: passwordNonce,
+        },
+      });
       return passwordNonce;
     } catch (err) {
       return null;
     }
   }
 
-
   async validateUsername(username: string): Promise<boolean> {
     // Check that username doesn't already exist
-    return !await this.findOne({ username });
+    return !(await this.findOne({ username }));
   }
 
   async findOne(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<SanitizedUser | null> {
     const user = await this.prisma.user.findUnique({
-      where: userUniqueInput
+      where: userUniqueInput,
     });
 
     if (user) {
@@ -109,21 +105,19 @@ export class UsersService {
   async findAll(): Promise<SanitizedUser[] | []> {
     const users = await this.prisma.user.findMany();
     const sanitizedUsers = [];
-    for (let user of users) {
+    for (const user of users) {
       sanitizedUsers.push(this.sanitizeOutput(user));
     }
     return sanitizedUsers;
   }
 
-  async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User|null> {
+  async findOneUnsanitized(userUniqueInput: Prisma.UserWhereUniqueInput): Promise<User | null> {
     return await this.prisma.user.findUnique({
-      where: userUniqueInput
+      where: userUniqueInput,
     });
   }
 
   async delete(where: Prisma.UserWhereUniqueInput) {
     return await this.prisma.user.delete({ where });
   }
-
-
 }

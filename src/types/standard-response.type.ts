@@ -1,4 +1,3 @@
-
 // atomic types
 
 /**
@@ -18,13 +17,13 @@ export type MessageResponse = string;
 export type CompliantContentResponse<T> = T & Partial<StandardResponseOutput<T>>;
 
 export type StandardResponseOutput<T> = {
-    /** a brief status explaining the result of the query */
-    status: "OK"|"created"|"removed"|string;
-    /** a message if the API needs to pass text onto the consumer */
-    message?: MessageResponse;
-    /** the content of the response, if any is sent back */
-    content?: CompliantContentResponse<T>;
-}
+  /** a brief status explaining the result of the query */
+  status: 'OK' | 'created' | 'removed' | string;
+  /** a message if the API needs to pass text onto the consumer */
+  message?: MessageResponse;
+  /** the content of the response, if any is sent back */
+  content?: CompliantContentResponse<T>;
+};
 
 // composite types
 export type StandardResponseCandidate<T> = VoidResponse | MessageResponse | CompliantContentResponse<T>;

@@ -15,8 +15,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-
-  public static ACCESS_COOKIE_NAME = "access"
+  public static ACCESS_COOKIE_NAME = 'access';
 
   constructor(
     private usersService: UsersService,
@@ -28,20 +27,19 @@ export class AuthService {
   async register(createUserDto: CreateUserDto): Promise<SanitizedUser> {
     try {
       return this.usersService.sanitizeOutput(await this.usersService.create(createUserDto));
-    }
-    catch (err) {
+    } catch (err) {
       // Handle violation of unique keys email and username and return clear error message
       if (err.code === 'P2002' && err.meta?.target?.length > 0) {
         throw new BadRequestException(`Registration error - this ${err.meta.target[0]} is already used`);
       }
-      throw new InternalServerErrorException("Something went wrong");
+      throw new InternalServerErrorException('Something went wrong');
     }
   }
 
   // Sign user in by email and password
   async login(response: Response, credentials: LoginUserDto): Promise<AccessToken> {
     const user = await this.validateUser(credentials);
-    if(!user) {
+    if (!user) {
       throw new UnauthorizedException();
     }
 
@@ -49,47 +47,46 @@ export class AuthService {
     const payload: JwtEncodedUserData = {
       sub: user['id'],
       username: user['username'],
-      isAdmin: user['isAdmin']
+      isAdmin: user['isAdmin'],
     };
 
     const jwt = await this.jwtService.signAsync(payload);
     this.setCookie(response, jwt);
 
-    return {accessToken: jwt};
+    return { accessToken: jwt };
   }
 
   async logout(response: Response) {
     this.setCookie(response);
   }
 
-  async validateUser(credentials: LoginUserDto): Promise<RequestUser|null> {
-    const user = await this.usersService.findOneUnsanitized({email: credentials.email});
-    if (user && !user.emailNonce && await bcrypt.compare(credentials.password, user.password)) {
+  async validateUser(credentials: LoginUserDto): Promise<RequestUser | null> {
+    const user = await this.usersService.findOneUnsanitized({ email: credentials.email });
+    if (user && !user.emailNonce && (await bcrypt.compare(credentials.password, user.password))) {
       return {
         id: user.id,
         username: user.username,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin,
       };
     }
     return null;
   }
-  
+
   // verify email token
-  async confirmEmail(token: string): Promise<Boolean> {
-    let sanitizedUser = await this.usersService.findOne({emailNonce: token});
+  async confirmEmail(token: string): Promise<boolean> {
+    const sanitizedUser = await this.usersService.findOne({ emailNonce: token });
     if (!sanitizedUser) {
       return false;
     }
     return this.usersService.validateEmailNonce(token);
   }
 
-
   // request password reset
   async passwordRequest(passwordRequestDto: PasswordRequestDto): Promise<void> {
     try {
-      let user = await this.usersService.findOneUnsanitized({email: passwordRequestDto.email})
+      const user = await this.usersService.findOneUnsanitized({ email: passwordRequestDto.email });
       if (user) {
-        let passwordNonce = await this.usersService.regeneratePasswordNonce(user.id);
+        const passwordNonce = await this.usersService.regeneratePasswordNonce(user.id);
         if (!passwordNonce) {
           return;
         }
@@ -101,12 +98,12 @@ export class AuthService {
   }
 
   // reset password
-  async passwordReset(token: string, passwordResetDto: PasswordResetDto) : Promise<boolean> {
-    let user = await this.usersService.findOneUnsanitized({passwordNonce: token})
+  async passwordReset(token: string, passwordResetDto: PasswordResetDto): Promise<boolean> {
+    const user = await this.usersService.findOneUnsanitized({ passwordNonce: token });
     if (!user) {
       return false;
-    } 
-    if (!await this.usersService.updatePassword(user.id, passwordResetDto.password)) {
+    }
+    if (!(await this.usersService.updatePassword(user.id, passwordResetDto.password))) {
       return false;
     }
     return true;
@@ -119,7 +116,7 @@ export class AuthService {
    */
   setCookie(response: Response, value: string = null) {
     // defaults for cookie "invalidation"
-    let val = "";
+    let val = '';
     let time = 30 * 1000; // expire very soon, the cookie is empty anyways so no need to keep it
 
     if (value !== null) {
@@ -131,8 +128,7 @@ export class AuthService {
       httpOnly: true,
       sameSite: true,
       secure: !(this.configService.getOrThrow('APP_DEV_MODE') === 'true'),
-      maxAge: time
-    })
+      maxAge: time,
+    });
   }
-
 }

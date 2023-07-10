@@ -15,10 +15,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   // catch all prisma exceptions
   app.useGlobalFilters(new PrismaCatcherFilter());
@@ -34,14 +36,14 @@ async function bootstrap() {
     .addTag('users')
     .addTag('projects')
     .addTag('ssh keys')
-    .addCookieAuth("access")
+    .addCookieAuth('access')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/', app, document);
 
   // initialise cookie parser
-  app.use(cookieParser())
+  app.use(cookieParser());
 
   await app.listen(3000);
 }

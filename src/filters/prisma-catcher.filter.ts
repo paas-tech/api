@@ -40,13 +40,13 @@ export class PrismaCatcherFilter implements ExceptionFilter {
         throw new InternalServerErrorException();
     }
 
-    const response = ctx.getResponse<Response>()
+    const response = ctx.getResponse<Response>();
 
     response.status(statusCode).send({
       statusCode,
       errorCode,
       message,
       field: field ?? undefined,
-    })
+    });
   }
 }

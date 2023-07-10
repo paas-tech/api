@@ -1,15 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Param,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectsService } from './projects.service';
 import { SanitizedProject } from './types/sanitized-project.type';
@@ -24,7 +13,7 @@ import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 @ApiCookieAuth()
 @ApiBearerAuth()
 @ApiTags('projects')
-@ApiResponse({type: ApiStandardResponse})
+@ApiResponse({ type: ApiStandardResponse })
 @Controller('projects')
 export class ProjectsController {
   constructor(private projectsService: ProjectsService, private prisma: PrismaService) {}
@@ -39,10 +28,7 @@ export class ProjectsController {
   // GET /projects/:uuid
   // This action returns a #${id} project;
   @Get(':uuid')
-  async findOne(
-    @Param('uuid', new ParseUUIDPipe()) id: string,
-    @GetUser() user: RequestUser,
-  ): Promise<SanitizedProject> {
+  async findOne(@Param('uuid', new ParseUUIDPipe()) id: string, @GetUser() user: RequestUser): Promise<SanitizedProject> {
     return this.projectsService.findOne(id, user.id);
   }
 
@@ -54,7 +40,7 @@ export class ProjectsController {
     */
   @Post()
   async create(@Body() request: CreateProjectDto, @GetUser() user: RequestUser): Promise<SanitizedProject> {
-    return this.projectsService.create(user.id, request.name);
+    return await this.projectsService.create(user.id, request.name);
   }
 
   // DELETE /projects/:uuid

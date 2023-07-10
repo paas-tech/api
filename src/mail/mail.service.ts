@@ -27,56 +27,54 @@ const PASSWORD_RESET_TEMPLATE = `<h2>Password reset</h2>
 
 @Injectable()
 export class MailService {
+  private hostname: string;
 
-    private hostname: string;
+  constructor(private readonly mailerService: MailerService, private readonly configService: ConfigService) {
+    this.hostname = `${this.configService.getOrThrow('FRONTEND_HOST')}:${this.configService.getOrThrow('FRONTEND_PORT')}`;
+  }
 
-    constructor(
-        private readonly mailerService: MailerService,
-        private readonly configService: ConfigService,
-    ) {
-        this.hostname = `${this.configService.getOrThrow('FRONTEND_HOST')}:${this.configService.getOrThrow('FRONTEND_PORT')}`;
-    }
+  async sendUserConfirmation(email: string, token: string): Promise<boolean> {
+    const url = `${this.hostname}/email-verification/${token}`;
+    const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
 
-    async sendUserConfirmation(email: string, token: string): Promise<boolean> {
-        const url = `${this.hostname}/email-verification/${token}`;
-        const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
+    return this.mailerService
+      .sendMail({
+        from: `${this.configService.getOrThrow('MAILER_FROM')}`,
+        to: email,
+        subject: 'Welcome to PaaSTech!',
+        html: template({ url }),
 
-        return this.mailerService.sendMail({
-            from: `${this.configService.getOrThrow('MAILER_FROM')}`,
-            to: email,
-            subject: 'Welcome to PaaSTech!',
-            html: template({ url }),
+        // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
 
-            // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
+        //template: './confirmation',
+        //context: {
+        //    url,
+        //},
+      })
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+  }
 
-            //template: './confirmation',
-            //context: {
-            //    url,
-            //},
-        }).then(() => {
-            return true;
-        }).catch((err: any) => {
-            return false;
-        });
-    }
+  async sendPasswordReset(email: string, token: string) {
+    const url = `${this.hostname}/password-reset/${token}`;
+    const template = compile(PASSWORD_RESET_TEMPLATE);
 
-    async sendPasswordReset(email: string, token: string) {
-        const url = `${this.hostname}/password-reset/${token}`;
-        const template = compile(PASSWORD_RESET_TEMPLATE);
+    await this.mailerService.sendMail({
+      from: `${this.configService.getOrThrow('MAILER_FROM')}`,
+      to: email,
+      subject: '[PaaSTech] Password reset',
+      html: template({ url }),
 
-        await this.mailerService.sendMail({
-            from: `${this.configService.getOrThrow('MAILER_FROM')}`,
-            to: email,
-            subject: '[PaaSTech] Password reset',
-            html: template({ url }),
+      // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
 
-            // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
-
-            //template: './password-reset',
-            //context: {
-            //    url,
-            //},
-        });
-    }
-
+      //template: './password-reset',
+      //context: {
+      //    url,
+      //},
+    });
+  }
 }
