@@ -30,6 +30,6 @@ jobs:
         with:
           auto_fix: false
           eslint: true
-          eslint_extensions: "js,ts"
+          eslint_extensions: "ts"
           prettier: true
-          prettier_extensions: "js,ts"
+          prettier_extensions: "ts"
