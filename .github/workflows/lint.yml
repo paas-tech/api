@@ -30,5 +30,7 @@ jobs:
         with:
           auto_fix: false
           eslint: true
+          eslint_dir: "{prisma,src,test}/"
           eslint_extensions: "js,ts"
           prettier: true
+          prettier_dir: "{prisma,src,test}/"
