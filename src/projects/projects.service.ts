@@ -140,13 +140,9 @@ export class ProjectsService {
           throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
         }
       }
-      try {
-        // Send the grpc request to delete the repository
-        const repositoryRequest: RepositoryRequest = createRepositoryRequest(projectId);
-        await this.gitRepoManagerService.delete(repositoryRequest);
-      } catch (e) {
-        throw new InternalServerErrorException(`Failed to delete repository for project ${projectId}: ${e}`);
-      }
+      // Send the grpc request to delete the repository
+      const repositoryRequest: RepositoryRequest = createRepositoryRequest(projectId);
+      await this.gitRepoManagerService.delete(repositoryRequest);
       return this.sanitizeOutput(project);
     });
   }
@@ -246,7 +242,7 @@ export class ProjectsService {
       throw new NotFoundException(`Project with uuid ${projectId} not found`);
     });
 
-    // if not authorized to stop the project (not owner of project)
+    // if not authorized to perform the action (not owner of project / admin)
     if (!user.isAdmin && userId !== project.userId) throw new UnauthorizedException();
     return project;
   }
