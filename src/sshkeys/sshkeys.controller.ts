@@ -4,7 +4,7 @@ import { AdminOnly } from 'src/decorators/adminonly.decorator';
 import { CreateSshKeyDto } from './dto/create-sshkey.dto';
 import { GetUser } from 'src/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
-import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 import { CompliantContentResponse, MessageResponse } from 'src/types/standard-response.type';
 import { SanitizedSshKey } from './types/sanitized-ssh-key';
@@ -19,6 +19,7 @@ export class SshKeysController {
 
   // POST /sshkeys/my
   // This action adds a key ${setSshDto} to a user's keys
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('my')
   async createSshKey(@Body() createSshDto: CreateSshKeyDto, @GetUser() user: RequestUser): Promise<MessageResponse> {
     if (!(await this.sshkeysService.createSshKey(user.id, createSshDto))) {
@@ -32,6 +33,7 @@ export class SshKeysController {
 
   // DELETE /sshkeys/:username
   // This action removes a key ${setSshDto} to a user's keys
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Delete('my/:uuid')
   async deleteSshKey(@Param('uuid', new ParseUUIDPipe()) uuidSshKey: string, @GetUser() user: RequestUser): Promise<MessageResponse> {
     if (!(await this.sshkeysService.removeSshKey(user.id, uuidSshKey))) {
@@ -45,6 +47,7 @@ export class SshKeysController {
 
   // GET /sshkeys/my
   // This action gets all the ssh keys of the user
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Get('my')
   async getSshKeys(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedSshKey[]>> {
     return await this.sshkeysService.getSshKeysOfUser(user.id);
@@ -52,6 +55,7 @@ export class SshKeysController {
 
   // GET /sshkeys/
   // This action gets all ssh keys
+  @ApiOkResponse({ type: ApiStandardResponse })
   @AdminOnly()
   @Get()
   async getAllSshKeys(): Promise<CompliantContentResponse<SanitizedSshKey[]>> {

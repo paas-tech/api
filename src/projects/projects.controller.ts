@@ -6,7 +6,7 @@ import { GetUser } from 'src/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
 import { GetStatusDto } from './dto/get-status.dto';
 import { DeployDto } from './dto/deploy.dto';
-import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 import { CompliantContentResponse } from 'src/types/standard-response.type';
 
@@ -20,6 +20,7 @@ export class ProjectsController {
 
   // GET /projects
   // This action returns all of the authenticated user's projects
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Get()
   async findAll(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject[]>> {
     return this.projectsService.findAll(user.id);
@@ -27,6 +28,7 @@ export class ProjectsController {
 
   // GET /projects/:uuid
   // This action returns a #${id} project;
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Get(':uuid')
   async findOne(@Param('uuid', new ParseUUIDPipe()) id: string, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return this.projectsService.findOne(id, user.id);
@@ -38,6 +40,7 @@ export class ProjectsController {
         and returns a NewProject Object
         with the project's id and name
     */
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post()
   async create(@Body() request: CreateProjectDto, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return await this.projectsService.create(user.id, request.name);
@@ -45,6 +48,7 @@ export class ProjectsController {
 
   // DELETE /projects/:uuid
   // This action deletes a #${id} project
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Delete(':uuid')
   async delete(@Param('uuid', new ParseUUIDPipe()) uuid: string, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return await this.projectsService.delete(uuid, user.id);
@@ -52,6 +56,7 @@ export class ProjectsController {
 
   // Patch /projects/:uuid/start
   // This starts a deployment for a project
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Patch(':uuid/deploy')
   async deploy(@Param('uuid') uuid: string, @GetUser() user: RequestUser, @Body() request: DeployDto): Promise<CompliantContentResponse<SanitizedProject>> {
     return this.projectsService.deploy(uuid, user.id, request.env_vars);
@@ -59,6 +64,7 @@ export class ProjectsController {
 
   // POST /projects/:uuid/stop
   // This stops a deployment for a project
+  @ApiResponse({ status: 201, type: ApiStandardResponse })
   @Post(':uuid/stop')
   async stop(@Param('uuid') uuid: string, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return this.projectsService.stopDeployment(uuid, user.id);
@@ -66,6 +72,7 @@ export class ProjectsController {
 
   // GET /projects/:uuid/logs
   // This gets logs for a deployment
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Get(':uuid/logs')
   async getLogs(@Param('uuid') uuid: string, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return this.projectsService.getDeploymentLogs(uuid, user.id);
@@ -73,6 +80,7 @@ export class ProjectsController {
 
   // GET /projects/:uuid/statistics
   // This gets statistics for a deployment
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Get(':uuid/statistics')
   async getStatistics(@Param('uuid') uuid: string, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return await this.projectsService.getStatistics(uuid, user.id);
@@ -80,6 +88,7 @@ export class ProjectsController {
 
   // POST /projects/status
   // This gets status for one or more deployments
+  @ApiResponse({ status: 201, type: ApiStandardResponse })
   @Post('/status')
   async getStatus(@Body() request: GetStatusDto, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return await this.projectsService.getStatus(request.container_names, user.id);
