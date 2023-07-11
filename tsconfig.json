@@ -13,5 +13,5 @@
     "incremental": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "node_modules/paastech-proto/proto/git-repo-manager.proto"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "prisma/**/*.ts", "node_modules/paastech-proto/proto/git-repo-manager.proto"]
 }

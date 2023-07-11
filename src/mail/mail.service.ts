@@ -12,7 +12,7 @@ const EMAIL_CONFIRMATION_TEMPLATE = `<h2>Welcome to PaasTech!</h2>
 <p>If you have trouble opening the link, you can copy the following URL into your browser: </p>
 <p>{{ url }}</p>
 
-<p>If you did not request this email you can safely ignore it.</p>`;
+<p>If you did not request this email, you can safely ignore it.</p>`;
 
 const PASSWORD_RESET_TEMPLATE = `<h2>Password reset</h2>
 <p>Please click the link below to reset your password:</p>
@@ -23,60 +23,58 @@ const PASSWORD_RESET_TEMPLATE = `<h2>Password reset</h2>
 <p>If you have trouble opening the link, you can copy the following URL into your browser: </p>
 <p>{{ url }}</p>
 
-<p>If you did not request this email please contact us immediatly.</p>`;
+<p>If you did not request this email, please contact us immediately.</p>`;
 
 @Injectable()
 export class MailService {
+  private hostname: string;
 
-    private hostname: string;
+  constructor(private readonly mailerService: MailerService, private readonly configService: ConfigService) {
+    this.hostname = this.configService.getOrThrow('FRONTEND_ORIGIN');
+  }
 
-    constructor(
-        private readonly mailerService: MailerService,
-        private readonly configService: ConfigService,
-    ) {
-        this.hostname = `${this.configService.getOrThrow('APP_HOST')}:${this.configService.getOrThrow('APP_PORT')}`;
-    }
+  async sendUserConfirmation(email: string, token: string): Promise<boolean> {
+    const url = `${this.hostname}/#/email-verification/${token}`;
+    const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
 
-    async sendUserConfirmation(email: string, token: string): Promise<boolean> {
-        const url = `${this.hostname}/email-verification/${token}`;
-        const template = compile(EMAIL_CONFIRMATION_TEMPLATE);
+    return this.mailerService
+      .sendMail({
+        from: `${this.configService.getOrThrow('MAILER_FROM')}`,
+        to: email,
+        subject: 'Welcome to PaaSTech!',
+        html: template({ url }),
 
-        return this.mailerService.sendMail({
-            from: `${this.configService.getOrThrow('MAILER_FROM')}`,
-            to: email,
-            subject: 'Welcome to PaaSTech!',
-            html: template({ url }),
+        // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
 
-            // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
+        //template: './confirmation',
+        //context: {
+        //    url,
+        //},
+      })
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
+  }
 
-            //template: './confirmation',
-            //context: {
-            //    url,
-            //},
-        }).then(() => {
-            return true;
-        }).catch((err: any) => {
-            return false;
-        });
-    }
+  async sendPasswordReset(email: string, token: string) {
+    const url = `${this.hostname}/#/password-reset/${token}`;
+    const template = compile(PASSWORD_RESET_TEMPLATE);
 
-    async sendPasswordReset(email: string, token: string) {
-        const url = `${this.hostname}/password-reset/${token}`;
-        const template = compile(PASSWORD_RESET_TEMPLATE);
+    await this.mailerService.sendMail({
+      from: `${this.configService.getOrThrow('MAILER_FROM')}`,
+      to: email,
+      subject: '[PaaSTech] Password reset',
+      html: template({ url }),
 
-        await this.mailerService.sendMail({
-            from: `${this.configService.getOrThrow('MAILER_FROM')}`,
-            to: email,
-            subject: '[PaaSTech] Password reset',
-            html: template({ url }),
+      // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
 
-            // TODO: use @nestjs-modules/mailer once bumped to 10.0.0
-
-            //template: './password-reset',
-            //context: {
-            //    url,
-            //},
-        });
-    }
-
+      //template: './password-reset',
+      //context: {
+      //    url,
+      //},
+    });
+  }
 }

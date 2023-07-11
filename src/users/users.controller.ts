@@ -1,56 +1,54 @@
 import { SanitizedUser } from './types/sanitized-user.type';
 import { BadRequestException, Controller, Delete, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { AdminOnly } from 'src/auth/decorators/adminonly.decorator';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { GetUser } from 'src/auth/decorators/user.decorator';
+import { AdminOnly } from 'src/decorators/adminonly.decorator';
+import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/decorators/user.decorator';
 import { RequestUser } from 'src/auth/types/jwt-user-data.type';
+import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
+import { CompliantContentResponse, MessageResponse } from 'src/types/standard-response.type';
 
 @ApiBearerAuth()
+@ApiCookieAuth()
 @ApiTags('users')
+@ApiResponse({ type: ApiStandardResponse })
 @Controller('users')
 export class UsersController {
-    constructor(
-        private usersService: UsersService,
-    ) {}
+  constructor(private usersService: UsersService) {}
 
-    // GET /users
-    // This action returns all users
-    @AdminOnly()
-    @Get()
-    async findAll(): Promise<SanitizedUser[]> {
-        return await this.usersService.findAll();
+  // GET /users
+  // This action returns all users
+  @AdminOnly()
+  @Get()
+  async findAll(): Promise<CompliantContentResponse<SanitizedUser[]>> {
+    return await this.usersService.findAll();
+  }
+
+  // GET /users/my
+  // This action returns a user's profile
+  @Get('my')
+  async getProfile(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedUser>> {
+    return await this.usersService.findOne({ id: user.id });
+  }
+
+  // GET /users/:username
+  // This action returns a #${username} user
+  @AdminOnly()
+  @Get(':username')
+  async findOne(@Param('username') username: string): Promise<CompliantContentResponse<SanitizedUser>> {
+    return await this.usersService.findOne({ username });
+  }
+
+  // DELETE /users/:username
+  // This action deletes a #${username} user
+  @AdminOnly()
+  @Delete(':username')
+  async delete(@Param('username') username: string): Promise<MessageResponse> {
+    try {
+      await this.usersService.delete({ username });
+    } catch (err) {
+      throw new BadRequestException('User deletion failed');
     }
-
-    // GET /users/my
-    // This action returns a user's profile
-    @Get('my')
-    async getProfile(@GetUser() user: RequestUser): Promise<SanitizedUser> {
-        return await this.usersService.findOne({ id: user.id });
-    }
-
-    // GET /users/:username
-    // This action returns a #${username} user
-    @AdminOnly()
-    @Get(':username')
-    async findOne(@Param('username') username: string): Promise<SanitizedUser> {
-        return await this.usersService.findOne({ username });
-    }
-
-    // DELETE /users/:username
-    // This action deletes a #${username} user
-    @AdminOnly()
-    @Delete(':username')
-    async delete(@Param('username') username: string): Promise<String> {
-        try {
-            await this.usersService.delete({ username });
-        }
-        catch (err) {
-            throw new BadRequestException('User deletion failed');
-        }
-        return "User deleted successfully";
-
-    }
-
-
+    return 'User deleted successfully';
+  }
 }

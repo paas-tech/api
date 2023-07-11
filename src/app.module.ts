@@ -5,13 +5,13 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
 import { MailModule } from './mail/mail.module';
-import { _InternalMailerService } from './mail/mailer.internal.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { PomegranateService } from './projects/pomegranate.service';
 import { SshKeysModule } from './sshkeys/sshkeys.module';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [
@@ -27,6 +27,7 @@ import { SshKeysModule } from './sshkeys/sshkeys.module';
   controllers: [AppController],
   providers: [
     AppService,
+    PrismaService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

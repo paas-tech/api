@@ -7,7 +7,6 @@ import { GitRepoManagerService } from './git-repo-manager.service';
 import { RepositoryRequest } from 'paastech-proto/types/proto/git-repo-manager';
 import { createRepositoryRequest } from 'src/utils/grpc/grpc-request-helpers';
 import {
-  ContainerStatus,
   DeleteImageRequest,
   DeployRequest,
   EmptyResponse,
@@ -20,7 +19,6 @@ import {
   StopDeployRequest,
 } from 'paastech-proto/types/proto/pomegranate';
 import { PomegranateService } from './pomegranate.service';
-import { env } from 'process';
 
 @Injectable()
 export class ProjectsService {

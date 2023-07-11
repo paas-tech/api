@@ -1,22 +1,11 @@
-import{ IsByteLength, IsNotEmpty, Length, Matches, MaxLength, MinLength } from 'class-validator';
-import { PASSWORD_REGEX } from 'src/utils/constants';
+import { IsAcceptablePassword } from 'src/decorators/dto/acceptable-password.decorator';
 import { MatchesWithProperty } from 'src/validators/match-other.validator';
 
 export class PasswordResetDto {
-    @IsNotEmpty()
-    @IsByteLength(0, 72)
-    @Length(8, 72)
-    @Matches(PASSWORD_REGEX, {
-        message: 'Password should be minimum eight character long and have at least one uppercase letter, one lowercase letter, one number and one special character.'
-    })
-    password: string;
+  @IsAcceptablePassword()
+  password: string;
 
-    @IsNotEmpty()
-    @IsByteLength(0, 72)
-    @Length(8, 72)
-    @Matches(PASSWORD_REGEX, {
-        message: 'Password should be minimum eight character long and have at least one uppercase letter, one lowercase letter, one number and one special character.'
-    })
-    @MatchesWithProperty<PasswordResetDto>(PasswordResetDto, o => o.password)
-    passwordVerification: string;
+  @IsAcceptablePassword()
+  @MatchesWithProperty<PasswordResetDto>(PasswordResetDto, (o) => o.password)
+  passwordVerification: string;
 }

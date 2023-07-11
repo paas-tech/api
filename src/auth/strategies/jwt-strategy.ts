@@ -11,10 +11,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(configService: ConfigService) {
     super({
       // load from cookie, and if not, from the bearer auth token
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        JwtStrategy.extractFromCookie,
-        ExtractJwt.fromAuthHeaderAsBearerToken()
-      ]),
+      jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractFromCookie, ExtractJwt.fromAuthHeaderAsBearerToken()]),
       secretOrKey: configService.getOrThrow('JWT_SECRET'),
       ignoreExpiration: false,
     });
@@ -23,18 +20,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtEncodedUserData): Promise<RequestUser> {
     return { id: payload.sub, username: payload.username, isAdmin: payload.isAdmin };
   }
-  
-  private static extractFromCookie(req: Request): string|null {
+
+  private static extractFromCookie(req: Request): string | null {
     const name = AuthService.ACCESS_COOKIE_NAME;
 
-    if (
-        req.cookies && 
-        name in req.cookies && 
-        req.cookies[name].length > 0
-    ) {
+    if (req.cookies && name in req.cookies && req.cookies[name].length > 0) {
       return req.cookies[name];
     }
     return null;
   }
-
 }

@@ -14,8 +14,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "start:migrate:prod": "prisma migrate deploy && npm run start:prod",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "fmt": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{prisma,src,test}/**/*.{js,ts}\" && npx prettier \"{prisma,src,test}/**/*.{js,ts}\" -c",
+    "fmt": "eslint \"{prisma,src,test}/**/*.{js,ts}\" --fix && npx prettier \"{prisma,src,test}/**/*.{js,ts}\" -wc",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -42,6 +42,7 @@
     "paastech-proto": "github:paastech-cloud/proto",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
+    "prisma-error-enum": "^0.1.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.0"

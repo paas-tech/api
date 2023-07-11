@@ -9,24 +9,26 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class _InternalMailerService {
+  private transporter: nodemailer.Transporter;
 
-	private transporter: nodemailer.Transporter
+  constructor(configService: ConfigService) {
+    this.transporter = nodemailer.createTransport(
+      {
+        host: configService.getOrThrow('MAILER_HOST'),
+        port: Number(configService.getOrThrow('MAILER_PORT')),
+        secure: configService.getOrThrow('MAILER_SECURE') === 'true',
+        auth: {
+          user: configService.getOrThrow('MAILER_USER'),
+          pass: configService.getOrThrow('MAILER_PASSWORD'),
+        },
+      },
+      {
+        from: configService.getOrThrow('MAILER_FROM'),
+      },
+    );
+  }
 
-	constructor(configService: ConfigService) {
-		this.transporter = nodemailer.createTransport({
-			host: configService.getOrThrow('MAILER_HOST'),
-			port: Number(configService.getOrThrow('MAILER_PORT')),
-			secure: configService.getOrThrow('MAILER_SECURE') === 'true',
-			auth: {
-				user: configService.getOrThrow('MAILER_USER'),
-				pass: configService.getOrThrow('MAILER_PASSWORD'),
-			},
-		}, {
-			from: configService.getOrThrow('MAILER_FROM'),
-		});
-	}
-
-	async sendMail(mailOptions: nodemailer.SendMailOptions) {
-		return this.transporter.sendMail(mailOptions);
-	}
+  async sendMail(mailOptions: nodemailer.SendMailOptions) {
+    return this.transporter.sendMail(mailOptions);
+  }
 }
