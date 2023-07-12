@@ -21,7 +21,7 @@ export class AuthController {
   // POST /auth/login
   // This action returns an access token
   @Public()
-  @ApiResponse({ status: 201, type: ApiStandardResponse })
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('login')
   async login(@Response({ passthrough: true }) response: EResponse, @Body() loginUserDto: LoginUserDto): Promise<CompliantContentResponse<AccessToken>> {
     return this.authService.login(response, loginUserDto);
@@ -48,7 +48,7 @@ export class AuthController {
   // POST /auth/confirm/:token
   // This path lets the user confirm his email
   @Public()
-  @ApiResponse({ status: 201, type: ApiStandardResponse })
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('confirm/:token')
   async confirmEmail(@Param('token', new ParseUUIDPipe()) token: string): Promise<MessageResponse> {
     if (!(await this.authService.confirmEmail(token))) {
@@ -60,7 +60,7 @@ export class AuthController {
   // POST /auth/password/request
   // This path lets the user request to change his password
   @Public()
-  @ApiResponse({ status: 201, type: ApiStandardResponse })
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('password/request')
   async requestPassword(@Body() passwordRequestDto: PasswordRequestDto): Promise<MessageResponse> {
     await this.authService.passwordRequest(passwordRequestDto);
@@ -71,7 +71,7 @@ export class AuthController {
   // POST /auth/password/reset
   // This path lets the user reset his password
   @Public()
-  @ApiResponse({ status: 201, type: ApiStandardResponse })
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('password/reset/:token')
   async resetPassword(@Param('token', new ParseUUIDPipe()) token: string, @Body() passwordResetDto: PasswordResetDto): Promise<MessageResponse> {
     if (!(await this.authService.passwordReset(token, passwordResetDto))) {

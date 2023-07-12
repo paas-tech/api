@@ -64,7 +64,7 @@ export class ProjectsController {
 
   // POST /projects/:uuid/stop
   // This stops a deployment for a project
-  @ApiResponse({ status: 201, type: ApiStandardResponse })
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post(':uuid/stop')
   async stop(@Param('uuid') uuid: string, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return this.projectsService.stopDeployment(uuid, user.id);
@@ -88,7 +88,7 @@ export class ProjectsController {
 
   // POST /projects/status
   // This gets status for one or more deployments
-  @ApiResponse({ status: 201, type: ApiStandardResponse })
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('/status')
   async getStatus(@Body() request: GetStatusDto, @GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject>> {
     return await this.projectsService.getStatus(request.container_names, user.id);
