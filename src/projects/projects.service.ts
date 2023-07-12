@@ -19,10 +19,13 @@ import {
   StopDeployRequest,
 } from 'paastech-proto/types/proto/pomegranate';
 import { PomegranateService } from './pomegranate.service';
+import { CustomLoggerService } from 'src/logger/custom-logger.service';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService, private gitRepoManagerService: GitRepoManagerService, private pomegranateService: PomegranateService) {}
+  constructor(private prisma: PrismaService, private gitRepoManagerService: GitRepoManagerService, private pomegranateService: PomegranateService, private readonly logger: CustomLoggerService) {
+    this.logger.setContext(ProjectsService.name);
+  }
 
   private sanitizeOutput(project: Project): SanitizedProject {
     return exclude(project, ['userId']);
@@ -48,6 +51,12 @@ export class ProjectsService {
       try {
         await this.gitRepoManagerService.create(repositoryRequest);
       } catch (e) {
+        if (e.status === 409) {
+          throw new ConflictException(`Project with name ${name} already exists`);
+        }
+
+        this.logger.cError(this.create.name, 'Failed to create repository', e);
+
         throw new InternalServerErrorException(`Failed to create repository for project ${createdProject.id}`);
       }
 
@@ -121,7 +130,8 @@ export class ProjectsService {
 
     return await this.prisma.$transaction(async (tx) => {
       // delete the project
-      await tx.project.delete({ where: { id: projectId } }).catch(() => {
+      await tx.project.delete({ where: { id: projectId } }).catch((e) => {
+        this.logger.cError(this.delete.name, 'Failed to delete project', e);
         throw new InternalServerErrorException(`Failed to delete project ${projectId}`);
       });
 
@@ -135,6 +145,7 @@ export class ProjectsService {
       } catch (e) {
         // If the image does not exist, we do not throw an error
         if (e.status !== 404) {
+          this.logger.cError(this.delete.name, 'Failed to delete pomegranate image', e);
           throw new InternalServerErrorException(`Failed to delete the image for project ${projectId}: ${e}`);
         }
       }
