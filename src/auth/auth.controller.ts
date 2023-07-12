@@ -5,7 +5,7 @@ import { AccessToken } from './dto/responses/access-token.dto';
 import { Public } from '../decorators/public.decorator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { SanitizedUser } from 'src/users/types/sanitized-user.type';
-import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCookieAuth, ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PasswordRequestDto } from './dto/password-request.dto';
 import { PasswordResetDto } from './dto/password-reset.dto';
 import { Response as EResponse } from 'express';
@@ -21,11 +21,13 @@ export class AuthController {
   // POST /auth/login
   // This action returns an access token
   @Public()
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('login')
   async login(@Response({ passthrough: true }) response: EResponse, @Body() loginUserDto: LoginUserDto): Promise<CompliantContentResponse<AccessToken>> {
     return this.authService.login(response, loginUserDto);
   }
 
+  @ApiOkResponse({ type: ApiStandardResponse })
   @Post('logout')
   @HttpCode(200)
   @ApiBearerAuth()
@@ -37,6 +39,7 @@ export class AuthController {
   // POST /auth/register
   // This action adds a new user
   @Public()
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto): Promise<CompliantContentResponse<SanitizedUser>> {
     return await this.authService.register(createUserDto);
@@ -45,6 +48,7 @@ export class AuthController {
   // POST /auth/confirm/:token
   // This path lets the user confirm his email
   @Public()
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('confirm/:token')
   async confirmEmail(@Param('token', new ParseUUIDPipe()) token: string): Promise<MessageResponse> {
     if (!(await this.authService.confirmEmail(token))) {
@@ -56,6 +60,7 @@ export class AuthController {
   // POST /auth/password/request
   // This path lets the user request to change his password
   @Public()
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('password/request')
   async requestPassword(@Body() passwordRequestDto: PasswordRequestDto): Promise<MessageResponse> {
     await this.authService.passwordRequest(passwordRequestDto);
@@ -66,6 +71,7 @@ export class AuthController {
   // POST /auth/password/reset
   // This path lets the user reset his password
   @Public()
+  @ApiCreatedResponse({ type: ApiStandardResponse })
   @Post('password/reset/:token')
   async resetPassword(@Param('token', new ParseUUIDPipe()) token: string, @Body() passwordResetDto: PasswordResetDto): Promise<MessageResponse> {
     if (!(await this.authService.passwordReset(token, passwordResetDto))) {
