@@ -8,10 +8,11 @@ import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/mail/mail.service';
 import { StandardResponseOutput } from 'src/types/standard-response.type';
+import { CustomLoggerService } from 'src/logger/custom-logger.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private readonly mailService: MailService) {}
+  constructor(private prisma: PrismaService, private readonly mailService: MailService, private readonly logger: CustomLoggerService) {}
 
   public sanitizeOutput(user: User): SanitizedUser {
     return exclude(user, ['id', 'emailNonce', 'passwordNonce', 'password', 'createdAt', 'updatedAt']);
@@ -63,6 +64,7 @@ export class UsersService {
       });
       return true;
     } catch (err) {
+      this.logger.cError(this.validateEmailNonce.name, `Failed to validate email with nonce '${email_nonce}'`, err);
       return false;
     }
   }
@@ -80,6 +82,7 @@ export class UsersService {
       });
       return true;
     } catch (err) {
+      this.logger.cError(this.updatePassword.name, `Failed to update password for user '${id}'`, err);
       return false;
     }
   }
@@ -97,6 +100,7 @@ export class UsersService {
       });
       return passwordNonce;
     } catch (err) {
+      this.logger.cError(this.regeneratePasswordNonce.name, `Failed to regenerate password nonce for user '${id}'`, err);
       return null;
     }
   }
