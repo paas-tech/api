@@ -156,7 +156,11 @@ export class ProjectsService {
     });
   }
 
-  async findAll(userId: string): Promise<SanitizedProject[]> {
+  async findAll(): Promise<SanitizedProject[]> {
+    return (await this.prisma.project.findMany()).map((project) => this.sanitizeOutput(project));
+  }
+
+  async findAllForUser(userId: string): Promise<SanitizedProject[]> {
     // check if user is admin
     const user = await this.prisma.user
       .findFirstOrThrow({

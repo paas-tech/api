@@ -9,6 +9,7 @@ import { DeployDto } from './dto/deploy.dto';
 import { ApiBearerAuth, ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiStandardResponse } from 'src/interfaces/standard-response.inteface';
 import { CompliantContentResponse } from 'src/types/standard-response.type';
+import { AdminOnly } from 'src/decorators/adminonly.decorator';
 
 @ApiCookieAuth()
 @ApiBearerAuth()
@@ -20,9 +21,15 @@ export class ProjectsController {
 
   // GET /projects
   // This action returns all of the authenticated user's projects
+  @AdminOnly()
   @Get()
-  async findAll(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject[]>> {
-    return this.projectsService.findAll(user.id);
+  async findAll(): Promise<CompliantContentResponse<SanitizedProject[]>> {
+    return this.projectsService.findAll();
+  }
+
+  @Get('my')
+  async findAllForUser(@GetUser() user: RequestUser): Promise<CompliantContentResponse<SanitizedProject[]>> {
+    return this.projectsService.findAllForUser(user.id);
   }
 
   // GET /projects/:uuid
