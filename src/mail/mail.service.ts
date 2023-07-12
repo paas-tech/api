@@ -36,14 +36,15 @@ export class MailService {
   }
 
   private async sendMail(options: Mail.Options): Promise<boolean> {
-    return await this.mailerService.sendMail(options)
-    .then(() => {
-      return true;
-    })
-    .catch((e) => {
-      this.logger.cError(this.sendMail.name, 'Failed to send mail', e);
-      return false;
-    });;
+    return await this.mailerService
+      .sendMail(options)
+      .then(() => {
+        return true;
+      })
+      .catch((e) => {
+        this.logger.cError(this.sendMail.name, 'Failed to send mail', e);
+        return false;
+      });
   }
 
   async sendUserConfirmation(email: string, token: string): Promise<boolean> {

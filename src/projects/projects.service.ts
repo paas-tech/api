@@ -23,7 +23,12 @@ import { CustomLoggerService } from 'src/logger/custom-logger.service';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService, private gitRepoManagerService: GitRepoManagerService, private pomegranateService: PomegranateService, private readonly logger: CustomLoggerService) {
+  constructor(
+    private prisma: PrismaService,
+    private gitRepoManagerService: GitRepoManagerService,
+    private pomegranateService: PomegranateService,
+    private readonly logger: CustomLoggerService,
+  ) {
     this.logger.setContext(ProjectsService.name);
   }
 
